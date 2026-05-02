@@ -3,11 +3,10 @@ import { Input } from "@kaheteyn/ui/components/input";
 import { Label } from "@kaheteyn/ui/components/label";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/logo";
-import { bootstrapApp } from "@/functions/bootstrap";
 import { getUser } from "@/functions/get-user";
 import { authClient } from "@/lib/auth-client";
 
@@ -23,10 +22,6 @@ function LoginPage() {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("123456");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    bootstrapApp().catch(() => {});
-  }, []);
 
   const signIn = useMutation({
     mutationFn: async () => {

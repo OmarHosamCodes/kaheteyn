@@ -1,14 +1,56 @@
+/**
+ * Idempotent seed script for Kaheteyn.
+ *
+ * Run with:  bun seed
+ *
+ * Seeds (only when missing):
+ *   - Admin user (admin / 123456) hashed via Better Auth
+ *   - 3 sponsors, 3 children, 1 payment
+ */
+
 import { auth } from "@kaheteyn/auth";
 import { db } from "@kaheteyn/db";
-import { child, payment, sponsor, user } from "@kaheteyn/db/schema";
-import { eq } from "drizzle-orm";
+import { auditLog, child, payment, sponsor, user } from "@kaheteyn/db/schema";
+import { eq, sql } from "drizzle-orm";
 
-import { publicProcedure, router } from "../index";
-import { logAudit, makeId } from "../lib";
+async function makeId(
+  prefix: "CH-" | "SP-" | "PAY-" | "REC-" | "AUD-",
+): Promise<string> {
+  const padLen = prefix === "CH-" ? 4 : prefix === "SP-" ? 3 : 6;
+  const table =
+    prefix === "CH-"
+      ? "child"
+      : prefix === "SP-"
+        ? "sponsor"
+        : prefix === "PAY-"
+          ? "payment"
+          : prefix === "REC-"
+            ? "receipt"
+            : "audit_log";
+  const result = await db.all<{ id: string }>(
+    sql.raw(
+      `SELECT id FROM ${table} WHERE id LIKE '${prefix}%' ORDER BY id DESC LIMIT 1`,
+    ),
+  );
+  const last = result[0]?.id;
+  let n = 0;
+  if (last) {
+    const parsed = Number(last.slice(prefix.length));
+    if (Number.isFinite(parsed)) n = parsed;
+  }
+  return `${prefix}${String(n + 1).padStart(padLen, "0")}`;
+}
 
 async function ensureAdmin() {
-  const [exists] = await db.select().from(user).where(eq(user.username, "admin")).limit(1);
-  if (exists) return { created: false };
+  const [existing] = await db
+    .select()
+    .from(user)
+    .where(eq(user.username, "admin"))
+    .limit(1);
+  if (existing) {
+    console.log("• Admin user already exists — skipping.");
+    return;
+  }
   await auth.api.signUpEmail({
     body: {
       email: "admin@kaheteyn.local",
@@ -19,14 +61,16 @@ async function ensureAdmin() {
       displayUsername: "admin",
     },
   });
-  return { created: true };
+  console.log("✓ Admin user created (admin / 123456).");
 }
 
-async function seedDemoIfEmpty() {
-  const existing = await db.select({ id: child.id }).from(child).limit(1);
-  if (existing.length) return { seeded: false };
+async function ensureDemoData() {
+  const [hasChild] = await db.select({ id: child.id }).from(child).limit(1);
+  if (hasChild) {
+    console.log("• Demo data already present — skipping.");
+    return;
+  }
 
-  // Sponsors
   const sp1Id = await makeId("SP-");
   await db.insert(sponsor).values({
     id: sp1Id,
@@ -49,10 +93,8 @@ async function seedDemoIfEmpty() {
     name: "سامية الحسيني",
     phone: "+970-59-7654321",
     paymentMethod: "palpay",
-    notes: null,
   });
 
-  // Children
   const ch1Id = await makeId("CH-");
   await db.insert(child).values({
     id: ch1Id,
@@ -117,10 +159,8 @@ async function seedDemoIfEmpty() {
     guardianRelation: "أم",
     phone: "+970-59-5556677",
     sponsorshipStatus: "unsponsored",
-    sponsorId: null,
   });
 
-  // One payment May 2024 - $100 paid + confirmed
   const payId = await makeId("PAY-");
   await db.insert(payment).values({
     id: payId,
@@ -134,25 +174,33 @@ async function seedDemoIfEmpty() {
     financialStatus: "confirmed",
   });
 
-  await logAudit({
+  const audId = await makeId("AUD-");
+  await db.insert(auditLog).values({
+    id: audId,
     actorName: "النظام",
     entityType: "child",
     action: "create",
-    newValue: { seeded: true, count: 3 },
+    newValue: JSON.stringify({ seeded: true, sponsors: 3, children: 3, payments: 1 }),
+    pseudoId: "seed:initial",
   });
 
-  return { seeded: true };
+  console.log("✓ Seeded 3 sponsors, 3 children, 1 payment.");
 }
 
-export const seedRouter = router({
-  bootstrap: publicProcedure.mutation(async () => {
-    const a = await ensureAdmin();
-    const d = await seedDemoIfEmpty();
-    return { ...a, ...d };
-  }),
-  status: publicProcedure.query(async () => {
-    const [u] = await db.select().from(user).where(eq(user.username, "admin")).limit(1);
-    const childRows = await db.select({ id: child.id }).from(child).limit(1);
-    return { adminExists: !!u, hasData: childRows.length > 0 };
-  }),
-});
+async function main() {
+  console.log("Kaheteyn — seed");
+  console.log("--------------------------------");
+  await ensureAdmin();
+  await ensureDemoData();
+  console.log("--------------------------------");
+  console.log("Done.");
+}
+
+main()
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  })
+  .finally(() => {
+    process.exit(0);
+  });

@@ -1,6 +1,7 @@
 import { db } from "@kaheteyn/db";
 import { child, payment, receipt, sponsor } from "@kaheteyn/db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
+import { z } from "zod";
 
 import { protectedProcedure, router } from "../index";
 
@@ -13,16 +14,21 @@ function currentMonthKey(d = new Date()) {
 export const dashboardRouter = router({
   summary: protectedProcedure.query(async () => {
     const monthKey = currentMonthKey();
-    const [{ count: totalChildren }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(child);
-    const [{ count: sponsoredCount }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(child)
-      .where(eq(child.sponsorshipStatus, "sponsored"));
-    const [{ count: sponsorsCount }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(sponsor);
+    const totalChildrenRow = (
+      await db.select({ count: sql<number>`count(*)` }).from(child)
+    )[0];
+    const totalChildren = totalChildrenRow?.count ?? 0;
+    const sponsoredCountRow = (
+      await db
+        .select({ count: sql<number>`count(*)` })
+        .from(child)
+        .where(eq(child.sponsorshipStatus, "sponsored"))
+    )[0];
+    const sponsoredCount = sponsoredCountRow?.count ?? 0;
+    const sponsorsCountRow = (
+      await db.select({ count: sql<number>`count(*)` }).from(sponsor)
+    )[0];
+    const sponsorsCount = sponsorsCountRow?.count ?? 0;
     // Payments awaiting receipt
     const allPayments = await db.select().from(payment);
     const allReceipts = await db.select({ paymentId: receipt.paymentId }).from(receipt);
@@ -210,9 +216,68 @@ export const dashboardRouter = router({
     };
   }),
 
-  monthlyReport: protectedProcedure.query(async ({ ctx: _ctx }) => {
-    return null;
-  }),
-});
+  monthlyReport: protectedProcedure
+    .input(
+      z.object({
+        monthKey: z.string().regex(/^\d{4}-\d{2}$/),
+        sponsorId: z.string().optional(),
+        financialStatus: z.enum(["sent", "confirmed", "rejected"]).optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const filters = [eq(payment.monthKey, input.monthKey)];
+      if (input.sponsorId) filters.push(eq(payment.sponsorId, input.sponsorId));
+      if (input.financialStatus)
+        filters.push(eq(payment.financialStatus, input.financialStatus));
 
-export const _kept = { and };
+      const rows = await db
+        .select({
+          payment,
+          childName: child.fullName,
+          childResidence: child.residence,
+          sponsorName: sponsor.name,
+        })
+        .from(payment)
+        .leftJoin(child, eq(child.id, payment.childId))
+        .leftJoin(sponsor, eq(sponsor.id, payment.sponsorId))
+        .where(and(...filters))
+        .orderBy(desc(payment.dateSent));
+
+      const allReceipts = await db
+        .select({ paymentId: receipt.paymentId })
+        .from(receipt);
+      const receiptSet = new Set(allReceipts.map((r) => r.paymentId));
+
+      const items = rows.map((r) => ({
+        ...r.payment,
+        childName: r.childName ?? "—",
+        childResidence: r.childResidence ?? "—",
+        sponsorName: r.sponsorName ?? "—",
+        hasReceipt: receiptSet.has(r.payment.id),
+      }));
+
+      const totalCents = items.reduce((acc, p) => acc + p.amountUsd, 0);
+      const confirmedCents = items
+        .filter((p) => p.financialStatus === "confirmed")
+        .reduce((acc, p) => acc + p.amountUsd, 0);
+      const rejectedCount = items.filter(
+        (p) => p.financialStatus === "rejected",
+      ).length;
+      const missingReceipts = items.filter((p) => !p.hasReceipt).length;
+      const uniqueChildren = new Set(items.map((p) => p.childId)).size;
+      const uniqueSponsors = new Set(items.map((p) => p.sponsorId)).size;
+
+      return {
+        items,
+        totals: {
+          totalCents,
+          confirmedCents,
+          count: items.length,
+          rejectedCount,
+          missingReceipts,
+          uniqueChildren,
+          uniqueSponsors,
+        },
+      };
+    }),
+});

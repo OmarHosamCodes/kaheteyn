@@ -12,9 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppSponsorsRouteImport } from './routes/_app/sponsors'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
+import { Route as AppReceiptsRouteImport } from './routes/_app/receipts'
+import { Route as AppPaymentsRouteImport } from './routes/_app/payments'
+import { Route as AppFollowUpRouteImport } from './routes/_app/follow-up'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppAuditRouteImport } from './routes/_app/audit'
+import { Route as AppChildrenIndexRouteImport } from './routes/_app/children/index'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppChildrenIdRouteImport } from './routes/_app/children/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -30,9 +38,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppSponsorsRoute = AppSponsorsRouteImport.update({
+  id: '/sponsors',
+  path: '/sponsors',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReceiptsRoute = AppReceiptsRouteImport.update({
+  id: '/receipts',
+  path: '/receipts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPaymentsRoute = AppPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFollowUpRoute = AppFollowUpRouteImport.update({
+  id: '/follow-up',
+  path: '/follow-up',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAuditRoute = AppAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChildrenIndexRoute = AppChildrenIndexRouteImport.update({
+  id: '/children/',
+  path: '/children/',
   getParentRoute: () => AppRoute,
 } as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
@@ -45,43 +88,106 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppChildrenIdRoute = AppChildrenIdRouteImport.update({
+  id: '/children/$id',
+  path: '/children/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/audit': typeof AppAuditRoute
   '/dashboard': typeof AppDashboardRoute
+  '/follow-up': typeof AppFollowUpRoute
+  '/payments': typeof AppPaymentsRoute
+  '/receipts': typeof AppReceiptsRoute
+  '/reports': typeof AppReportsRoute
+  '/sponsors': typeof AppSponsorsRoute
+  '/children/$id': typeof AppChildrenIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/children/': typeof AppChildrenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/audit': typeof AppAuditRoute
   '/dashboard': typeof AppDashboardRoute
+  '/follow-up': typeof AppFollowUpRoute
+  '/payments': typeof AppPaymentsRoute
+  '/receipts': typeof AppReceiptsRoute
+  '/reports': typeof AppReportsRoute
+  '/sponsors': typeof AppSponsorsRoute
+  '/children/$id': typeof AppChildrenIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/children': typeof AppChildrenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/audit': typeof AppAuditRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/follow-up': typeof AppFollowUpRoute
+  '/_app/payments': typeof AppPaymentsRoute
+  '/_app/receipts': typeof AppReceiptsRoute
+  '/_app/reports': typeof AppReportsRoute
+  '/_app/sponsors': typeof AppSponsorsRoute
+  '/_app/children/$id': typeof AppChildrenIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/_app/children/': typeof AppChildrenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/dashboard' | '/api/auth/$' | '/api/trpc/$'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/audit'
+    | '/dashboard'
+    | '/follow-up'
+    | '/payments'
+    | '/receipts'
+    | '/reports'
+    | '/sponsors'
+    | '/children/$id'
+    | '/api/auth/$'
+    | '/api/trpc/$'
+    | '/children/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/api/auth/$' | '/api/trpc/$'
+  to:
+    | '/'
+    | '/login'
+    | '/audit'
+    | '/dashboard'
+    | '/follow-up'
+    | '/payments'
+    | '/receipts'
+    | '/reports'
+    | '/sponsors'
+    | '/children/$id'
+    | '/api/auth/$'
+    | '/api/trpc/$'
+    | '/children'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/login'
+    | '/_app/audit'
     | '/_app/dashboard'
+    | '/_app/follow-up'
+    | '/_app/payments'
+    | '/_app/receipts'
+    | '/_app/reports'
+    | '/_app/sponsors'
+    | '/_app/children/$id'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/_app/children/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -115,11 +221,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/sponsors': {
+      id: '/_app/sponsors'
+      path: '/sponsors'
+      fullPath: '/sponsors'
+      preLoaderRoute: typeof AppSponsorsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/receipts': {
+      id: '/_app/receipts'
+      path: '/receipts'
+      fullPath: '/receipts'
+      preLoaderRoute: typeof AppReceiptsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/payments': {
+      id: '/_app/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AppPaymentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/follow-up': {
+      id: '/_app/follow-up'
+      path: '/follow-up'
+      fullPath: '/follow-up'
+      preLoaderRoute: typeof AppFollowUpRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/audit': {
+      id: '/_app/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AppAuditRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/children/': {
+      id: '/_app/children/'
+      path: '/children'
+      fullPath: '/children/'
+      preLoaderRoute: typeof AppChildrenIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/api/trpc/$': {
@@ -136,15 +291,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/children/$id': {
+      id: '/_app/children/$id'
+      path: '/children/$id'
+      fullPath: '/children/$id'
+      preLoaderRoute: typeof AppChildrenIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAuditRoute: typeof AppAuditRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppFollowUpRoute: typeof AppFollowUpRoute
+  AppPaymentsRoute: typeof AppPaymentsRoute
+  AppReceiptsRoute: typeof AppReceiptsRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppSponsorsRoute: typeof AppSponsorsRoute
+  AppChildrenIdRoute: typeof AppChildrenIdRoute
+  AppChildrenIndexRoute: typeof AppChildrenIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAuditRoute: AppAuditRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppFollowUpRoute: AppFollowUpRoute,
+  AppPaymentsRoute: AppPaymentsRoute,
+  AppReceiptsRoute: AppReceiptsRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppSponsorsRoute: AppSponsorsRoute,
+  AppChildrenIdRoute: AppChildrenIdRoute,
+  AppChildrenIndexRoute: AppChildrenIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

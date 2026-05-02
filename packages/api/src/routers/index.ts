@@ -4,7 +4,6 @@ import { childrenRouter } from "./children";
 import { dashboardRouter } from "./dashboard";
 import { paymentsRouter } from "./payments";
 import { receiptsRouter } from "./receipts";
-import { seedRouter } from "./seed";
 import { sponsorsRouter } from "./sponsors";
 
 export const appRouter = router({
@@ -19,7 +18,6 @@ export const appRouter = router({
   receipts: receiptsRouter,
   audit: auditRouter,
   dashboard: dashboardRouter,
-  seed: seedRouter,
 });
 
 export type AppRouter = typeof appRouter;

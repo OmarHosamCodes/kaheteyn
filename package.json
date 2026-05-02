@@ -31,11 +31,15 @@
     "db:generate": "nx run-many -t db:generate --projects=@kaheteyn/db",
     "db:migrate": "nx run-many -t db:migrate --projects=@kaheteyn/db",
     "db:local": "nx run-many -t db:local --projects=@kaheteyn/db",
+    "seed": "bun --env-file=../../apps/web/.env run --cwd packages/db ../../scripts/seed.ts",
     "check": "biome check --write ."
   },
   "dependencies": {
+    "@kaheteyn/auth": "workspace:*",
+    "@kaheteyn/db": "workspace:*",
     "@kaheteyn/env": "workspace:*",
     "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.1",
     "zod": "catalog:"
   },
   "devDependencies": {

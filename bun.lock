@@ -5,8 +5,11 @@
     "": {
       "name": "kaheteyn",
       "dependencies": {
+        "@kaheteyn/auth": "workspace:*",
+        "@kaheteyn/db": "workspace:*",
         "@kaheteyn/env": "workspace:*",
         "dotenv": "catalog:",
+        "drizzle-orm": "^0.45.1",
         "zod": "catalog:",
       },
       "devDependencies": {
