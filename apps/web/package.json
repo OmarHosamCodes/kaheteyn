@@ -10,6 +10,7 @@
   "dependencies": {
     "@kaheteyn/api": "workspace:*",
     "@kaheteyn/auth": "workspace:*",
+    "@kaheteyn/db": "workspace:*",
     "@kaheteyn/env": "workspace:*",
     "@kaheteyn/ui": "workspace:*",
     "@libsql/client": "catalog:",
@@ -24,6 +25,7 @@
     "@trpc/tanstack-react-query": "^11.16.0",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.2",
     "libsql": "catalog:",
     "lucide-react": "^1.14.0",
     "next-themes": "catalog:",

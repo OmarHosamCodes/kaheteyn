@@ -21,7 +21,9 @@
     "noUncheckedSideEffectImports": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@kaheteyn/ui/*": ["../../packages/ui/src/*"]
+      "@kaheteyn/ui/*": ["../../packages/ui/src/*"],
+      "@kaheteyn/db": ["../../packages/db/src/index.ts"],
+      "@kaheteyn/db/*": ["../../packages/db/src/*"]
     }
   }
 }
