@@ -1,4 +1,6 @@
-# kaheteyn
+# Kaheteyn
+
+Kaheteyn is a comprehensive management system built to handle organizational needs, including managing children, sponsors, payments, receipts, and reporting.
 
 This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Start, Self, TRPC, and more.
 
