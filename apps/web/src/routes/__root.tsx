@@ -2,7 +2,12 @@ import type { AppRouter } from "@kaheteyn/api/routers/index";
 import { Toaster } from "@kaheteyn/ui/components/sonner";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
@@ -36,6 +41,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        src: "https://tweakcn.com/live-preview.min.js",
       },
     ],
   }),

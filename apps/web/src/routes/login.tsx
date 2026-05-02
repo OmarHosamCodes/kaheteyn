@@ -19,13 +19,13 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const signIn = useMutation({
     mutationFn: async () => {
-      const result = await authClient.signIn.username({ username, password });
+      const result = await authClient.signIn.email({ email: email.trim(), password });
       if (result.error) throw new Error(result.error.message ?? "تعذّر تسجيل الدخول");
       return result.data;
     },
@@ -56,13 +56,14 @@ function LoginPage() {
           }}
         >
           <div className="space-y-2">
-            <Label htmlFor="username">اسم المستخدم</Label>
+            <Label htmlFor="email">البريد الإلكتروني</Label>
             <Input
-              id="username"
+              id="email"
+              type="email"
               dir="ltr"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               required
             />
           </div>
@@ -82,11 +83,6 @@ function LoginPage() {
             {signIn.isPending ? "جاري الدخول..." : "دخول"}
           </Button>
         </form>
-        <div className="mt-6 rounded-md border bg-muted/40 p-3 text-xs text-muted-foreground">
-          <strong className="text-foreground">بيانات تجريبية:</strong>
-          <br />
-          اسم المستخدم: <code>admin</code> — كلمة المرور: <code>123456</code>
-        </div>
       </div>
     </div>
   );

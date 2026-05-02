@@ -9,6 +9,7 @@ import {
   LogOutIcon,
   ReceiptIcon,
   SearchIcon,
+  ShieldCheckIcon,
   UsersIcon,
 } from "lucide-react";
 
@@ -25,6 +26,7 @@ const items = [
   { to: "/reports", label: "التقارير", icon: ClipboardListIcon },
   { to: "/follow-up", label: "المتابعة", icon: SearchIcon },
   { to: "/audit", label: "سجل العمليات", icon: HistoryIcon },
+  { to: "/admins", label: "المشرفون", icon: ShieldCheckIcon },
 ] as const;
 
 export function Sidebar({ userName }: { userName?: string | null }) {
