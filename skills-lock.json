@@ -7,6 +7,12 @@
       "skillPath": "better-auth/best-practices/SKILL.md",
       "computedHash": "a4c830509e85557b59339d8d93a4e243e9e59c686e7678854d39230e12c2a6dc"
     },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "e320c6a95802882f0748be495150aaafccd2cce59a323d79cb50a3201c3bde75"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
