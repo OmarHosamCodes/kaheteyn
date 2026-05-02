@@ -1,0 +1,24 @@
+{
+  "name": "@kaheteyn/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@kaheteyn/db": "workspace:*",
+    "@kaheteyn/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@kaheteyn/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
