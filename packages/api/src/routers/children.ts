@@ -28,6 +28,9 @@ const childInput = z.object({
   sponsorId: z.string().nullable().optional(),
   photo: z.string().nullable().optional(),
   birthCertificate: z.string().nullable().optional(),
+  guardianIdPhoto: z.string().nullable().optional(),
+  guardianshipCertificate: z.string().nullable().optional(),
+  deathCertificate: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 });
 

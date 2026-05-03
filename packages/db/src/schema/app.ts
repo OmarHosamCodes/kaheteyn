@@ -27,6 +27,9 @@ export const child = pgTable(
     sponsorId: text("sponsor_id"),
     photo: text("photo"), // data URL or path
     birthCertificate: text("birth_certificate"),
+    guardianIdPhoto: text("guardian_id_photo"),
+    guardianshipCertificate: text("guardianship_certificate"),
+    deathCertificate: text("death_certificate"),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()

@@ -60,6 +60,9 @@ type ChildRow = {
   sponsorId: string | null;
   photo: string | null;
   birthCertificate: string | null;
+  guardianIdPhoto: string | null;
+  guardianshipCertificate: string | null;
+  deathCertificate: string | null;
   notes: string | null;
 };
 
@@ -86,6 +89,9 @@ function emptyChild(): ChildRow {
     sponsorId: null,
     photo: null,
     birthCertificate: null,
+    guardianIdPhoto: null,
+    guardianshipCertificate: null,
+    deathCertificate: null,
     notes: null,
   };
 }
@@ -551,6 +557,24 @@ function ChildDialog({
               <FileUpload
                 value={form.birthCertificate}
                 onChange={(v) => set("birthCertificate", v)}
+              />
+            </Field>
+            <Field label="صورة هوية الوصي">
+              <FileUpload
+                value={form.guardianIdPhoto}
+                onChange={(v) => set("guardianIdPhoto", v)}
+              />
+            </Field>
+            <Field label="شهادة الوصاية">
+              <FileUpload
+                value={form.guardianshipCertificate}
+                onChange={(v) => set("guardianshipCertificate", v)}
+              />
+            </Field>
+            <Field label="شهادة الوفاة">
+              <FileUpload
+                value={form.deathCertificate}
+                onChange={(v) => set("deathCertificate", v)}
               />
             </Field>
             <Field label="ملاحظات" className="md:col-span-3">

@@ -15,6 +15,13 @@
       "when": 1777766488000,
       "tag": "0001_split_payment_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777766489000,
+      "tag": "0002_child_extra_documents",
+      "breakpoints": true
     }
   ]
 }
