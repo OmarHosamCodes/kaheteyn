@@ -34,6 +34,9 @@ function Dashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">الرئيسية</h1>
+        <p className="text-sm text-muted-foreground italic">
+          يَا قَوْمِ ادْخُلُوا الأَرْضَ المُقَدَّسَةَ الَّتِي كَتَبَ اللّهُ لَكُمْ وَلاَ تَرْتَدُّوا عَلَى أَدْبَارِكُمْ فَتَنقَلِبُوا خَاسِرِينَ
+        </p>
         <span className="text-sm text-muted-foreground">
           {s ? `شهر ${monthLabelFromKey(s.monthKey)}` : "—"}
         </span>
