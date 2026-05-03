@@ -66,6 +66,9 @@ function ReportsPage() {
       ID: p.id,
       Child: p.childName,
       Residence: p.childResidence,
+      Guardian: p.guardianName,
+      Phone: p.childPhone,
+      BankAccount: p.guardianAccount,
       Sponsor: p.sponsorName,
       Month: p.monthLabel,
       AmountUSD: (p.amountUsd / 100).toFixed(2),
@@ -171,6 +174,9 @@ function ReportsPage() {
                       <TableHead>المعرّف</TableHead>
                       <TableHead>الطفل</TableHead>
                       <TableHead>السكن</TableHead>
+                      <TableHead>الواصي</TableHead>
+                      <TableHead>رقم التواصل</TableHead>
+                      <TableHead>رقم الحساب البنكي</TableHead>
                       <TableHead>الكفيل</TableHead>
                       <TableHead>المبلغ</TableHead>
                       <TableHead>التاريخ</TableHead>
@@ -186,6 +192,13 @@ function ReportsPage() {
                         </TableCell>
                         <TableCell>{p.childName}</TableCell>
                         <TableCell>{p.childResidence}</TableCell>
+                        <TableCell>{p.guardianName}</TableCell>
+                        <TableCell className="font-mono text-xs" dir="ltr">
+                          {p.childPhone}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs" dir="ltr">
+                          {p.guardianAccount}
+                        </TableCell>
                         <TableCell>{p.sponsorName}</TableCell>
                         <TableCell className="font-semibold">
                           {formatUSD(p.amountUsd)}

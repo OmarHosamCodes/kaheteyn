@@ -229,6 +229,9 @@ export const dashboardRouter = router({
           payment,
           childName: child.fullName,
           childResidence: child.residence,
+          guardianName: child.guardianName,
+          childPhone: child.phone,
+          guardianAccount: child.guardianAccount,
           sponsorName: sponsor.name,
         })
         .from(payment)
@@ -241,6 +244,9 @@ export const dashboardRouter = router({
         ...r.payment,
         childName: r.childName ?? "—",
         childResidence: r.childResidence ?? "—",
+        guardianName: r.guardianName ?? "—",
+        childPhone: r.childPhone ?? "—",
+        guardianAccount: r.guardianAccount ?? "—",
         sponsorName: r.sponsorName ?? "—",
         hasReceipt: !!r.payment.acknowledgmentReceipt && !!r.payment.transferReceipt,
       }));
