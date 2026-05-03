@@ -26,9 +26,53 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "كهاتين — نظام إدارة كفالة الأيتام" },
+      {
+        name: "description",
+        content:
+          "نظام إدارة كفالة الأيتام · Kaheteyn — Orphan Sponsorship Register",
+      },
+      // Theme color = Olive Guardian (brand structural accent)
+      { name: "theme-color", content: "#1F5830" },
+      { name: "application-name", content: "Kaheteyn" },
+      { name: "apple-mobile-web-app-title", content: "كهاتين" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      {
+        name: "apple-mobile-web-app-status-bar-style",
+        content: "default",
+      },
+      // Open Graph
+      { property: "og:type", content: "website" },
+      {
+        property: "og:title",
+        content: "كهاتين — نظام إدارة كفالة الأيتام",
+      },
+      {
+        property: "og:description",
+        content: "Kaheteyn · The Trusted Register for orphan sponsorship.",
+      },
+      { property: "og:image", content: "/og-image.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:locale", content: "ar_PS" },
+      // Twitter
+      { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:title",
+        content: "كهاتين — نظام إدارة كفالة الأيتام",
+      },
+      {
+        name: "twitter:description",
+        content: "Kaheteyn · The Trusted Register for orphan sponsorship.",
+      },
+      { name: "twitter:image", content: "/og-image.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      // Favicons
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "manifest", href: "/site.webmanifest" },
       {
         rel: "preconnect",
         href: "https://fonts.googleapis.com",

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Kaheteyn">
+  <title>Kaheteyn — كهاتين</title>
+  <!--
+    Open Graph image (1200x630).
+    RTL composition: Arabic wordmark on the right, tagline below it,
+    enlarged noon mark on the left as visual anchor.
+    Restrained register aesthetic: flat parchment surface, no gradients,
+    olive guardian hairline as the only structural accent.
+  -->
+  <defs>
+    <style>
+      .wordmark { font-family: 'Tajawal', system-ui, sans-serif; font-weight: 900; }
+      .tagline  { font-family: 'Tajawal', system-ui, sans-serif; font-weight: 500; }
+      .label    { font-family: 'Tajawal', system-ui, sans-serif; font-weight: 500; letter-spacing: 0.12em; }
+    </style>
+  </defs>
+
+  <!-- Parchment surface -->
+  <rect width="1200" height="630" fill="#FCFBF7"/>
+
+  <!-- Olive Guardian hairline at the bottom: brand structural accent -->
+  <rect x="0" y="624" width="1200" height="6" fill="#1F5830"/>
+
+  <!-- Top-left meta label -->
+  <text x="80" y="92" class="label" font-size="20" fill="#151515" opacity="0.55">
+    KAHETEYN · كهاتين
+  </text>
+
+  <!-- Large noon mark on the LEFT (anchor) -->
+  <g transform="translate(180, 240)">
+    <path
+      d="M 0 80 A 140 140 0 0 0 280 80"
+      fill="none"
+      stroke="#C2312D"
+      stroke-width="52"
+      stroke-linecap="round"
+    />
+    <circle cx="140" cy="148" r="26" fill="#151515"/>
+  </g>
+
+  <!-- Wordmark (Arabic) on the RIGHT, RTL aligned -->
+  <text x="1120" y="340" class="wordmark" font-size="148" fill="#151515"
+        text-anchor="end" direction="rtl">كهاتين</text>
+
+  <!-- Tagline (Arabic) -->
+  <text x="1120" y="410" class="tagline" font-size="32" fill="#151515" opacity="0.75"
+        text-anchor="end" direction="rtl">نظام إدارة كفالة الأيتام</text>
+
+  <!-- English subtitle -->
+  <text x="1120" y="455" class="tagline" font-size="22" fill="#151515" opacity="0.55"
+        text-anchor="end">Orphan Sponsorship Register</text>
+
+  <!-- Bottom-right footer dot pattern (visual texture, restrained) -->
+  <text x="80" y="580" class="label" font-size="18" fill="#151515" opacity="0.45">
+    THE TRUSTED REGISTER
+  </text>
+</svg>

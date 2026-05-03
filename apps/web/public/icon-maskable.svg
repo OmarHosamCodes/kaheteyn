@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kaheteyn">
+  <title>Kaheteyn</title>
+  <!--
+    Maskable icon (Android adaptive icons / PWA maskable spec).
+    Safe zone is the inner circle of radius 0.4 * width = 204.8px from center.
+    Mark is scaled to fit safely within that zone so OS masks (circle, squircle,
+    rounded square) never clip it.
+  -->
+  <rect width="512" height="512" fill="#FCFBF7"/>
+  <!-- Bowl of the noon, scaled down to live inside the safe circle -->
+  <path
+    d="M 168 240 A 120 120 0 0 0 344 240"
+    fill="none"
+    stroke="#C2312D"
+    stroke-width="46"
+    stroke-linecap="round"
+  />
+  <!-- Dot of the noon -->
+  <circle cx="256" cy="296" r="24" fill="#151515"/>
+</svg>

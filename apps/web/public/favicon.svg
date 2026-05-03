@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kaheteyn">
+  <title>Kaheteyn</title>
+  <!--
+    Mark distilled from the wordmark كهاتين:
+    - Red ن (noon) bowl: the most distinctive glyph in the wordmark
+    - Black dot: the diacritical dot of ن, sitting inside the bowl
+    Brand colors taken from the source logo:
+      red  #C2312D  (Ember Authority family)
+      ink  #151515  (Ink Foundation)
+    Sharp-cornered register aesthetic: no decoration, geometric purity.
+  -->
+  <!-- Open bowl of the noon: a thick stroked half-circle opening upward -->
+  <path
+    d="M 10 26 A 22 22 0 0 0 54 26"
+    fill="none"
+    stroke="#C2312D"
+    stroke-width="9"
+    stroke-linecap="round"
+  />
+  <!-- Dot of the noon (nuqta): centered inside the bowl -->
+  <circle cx="32" cy="38" r="4.5" fill="#151515"/>
+</svg>

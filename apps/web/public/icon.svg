@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kaheteyn">
+  <title>Kaheteyn</title>
+  <!--
+    App icon: same noon mark, set on a parchment surface for OS launchers.
+    Background: Parchment Surface (#FCFBF7) — near-white from the wordmark canvas.
+    No rounded corners on the SVG itself; OS masks handle squircle/circle clipping.
+  -->
+  <rect width="512" height="512" fill="#FCFBF7"/>
+  <!-- Bowl of the noon -->
+  <path
+    d="M 130 220 A 168 168 0 0 0 382 220"
+    fill="none"
+    stroke="#C2312D"
+    stroke-width="62"
+    stroke-linecap="round"
+  />
+  <!-- Dot of the noon -->
+  <circle cx="256" cy="298" r="32" fill="#151515"/>
+</svg>
