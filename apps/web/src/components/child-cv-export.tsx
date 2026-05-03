@@ -139,15 +139,13 @@ export function ChildCvExport({
 
 	return (
 		<div
-			className="child-cv-export bg-white text-black"
+			className="pointer-events-none fixed top-0 left-0 -z-10 h-0 w-0 overflow-hidden bg-white text-black opacity-0 print:pointer-events-auto print:static print:z-auto print:h-auto print:w-auto print:overflow-visible print:opacity-100"
 			data-child-cv-export="true"
 			data-export-photo-ready={photoReady ? "true" : "false"}
 			dir="rtl"
 		>
 			<style>
-				{
-					"@media screen { .child-cv-export { position: absolute; top: 0; left: -9999px; width: 190mm; } } @media print { @page { size: A4 portrait; margin: 12mm; } .child-cv-export { position: static; width: auto; } }"
-				}
+				{"@media print { @page { size: A4 portrait; margin: 12mm; } }"}
 			</style>
 
 			<div className="mx-auto flex min-h-[273mm] max-w-[190mm] flex-col text-[15px] leading-8">
