@@ -49,6 +49,9 @@ export function PageHeader({
         {subtitle ? (
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
         ) : null}
+        <p className="text-sm text-muted-foreground italic mt-2">
+          يَا قَوْمِ ادْخُلُوا الأَرْضَ المُقَدَّسَةَ الَّتِي كَتَبَ اللّهُ لَكُمْ وَلاَ تَرْتَدُّوا عَلَى أَدْبَارِكُمْ فَتَنقَلِبُوا خَاسِرِينَ
+        </p>
       </div>
       {actions ? (
         <div className="flex items-center gap-2 no-print">{actions}</div>

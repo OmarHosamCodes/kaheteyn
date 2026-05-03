@@ -48,6 +48,9 @@ function LoginPage() {
         <p className="text-center text-sm text-muted-foreground mb-6">
           نظام إدارة كفالة الأيتام
         </p>
+        <p className="text-center text-xs text-muted-foreground italic mb-6 px-4">
+          يَا قَوْمِ ادْخُلُوا الأَرْضَ المُقَدَّسَةَ الَّتِي كَتَبَ اللّهُ لَكُمْ وَلاَ تَرْتَدُّوا عَلَى أَدْبَارِكُمْ فَتَنقَلِبُوا خَاسِرِينَ
+        </p>
         <form
           className="space-y-4"
           onSubmit={(e) => {
