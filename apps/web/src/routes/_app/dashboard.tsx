@@ -183,7 +183,7 @@ function Dashboard() {
                   >
                     <span className="truncate">{r.childName}</span>
                     <span className="text-muted-foreground text-xs">
-                      {r.monthLabel} — {formatDate(r.dateReceived)}
+                      {r.monthLabel} — {formatDate(r.dateSent)}
                     </span>
                   </li>
                 ))}

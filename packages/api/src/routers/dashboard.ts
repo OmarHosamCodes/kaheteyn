@@ -1,5 +1,5 @@
 import { db } from "@kaheteyn/db";
-import { child, payment, receipt, sponsor } from "@kaheteyn/db/schema";
+import { child, payment, sponsor } from "@kaheteyn/db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -31,9 +31,7 @@ export const dashboardRouter = router({
     const sponsorsCount = sponsorsCountRow?.count ?? 0;
     // Payments awaiting receipt
     const allPayments = await db.select().from(payment);
-    const allReceipts = await db.select({ paymentId: receipt.paymentId }).from(receipt);
-    const receiptSet = new Set(allReceipts.map((r) => r.paymentId));
-    const awaitingReceipts = allPayments.filter((p) => !receiptSet.has(p.id)).length;
+    const awaitingReceipts = allPayments.filter((p) => !p.acknowledgmentReceipt || !p.transferReceipt).length;
     const monthTotal = allPayments
       .filter((p) => p.monthKey === monthKey)
       .reduce((acc, p) => acc + p.amountUsd, 0);
@@ -71,18 +69,18 @@ export const dashboardRouter = router({
   latestReceipts: protectedProcedure.query(async () => {
     const rows = await db
       .select({
-        receipt,
+        payment,
         childName: child.fullName,
         amountUsd: payment.amountUsd,
         monthLabel: payment.monthLabel,
       })
-      .from(receipt)
-      .leftJoin(payment, eq(payment.id, receipt.paymentId))
+      .from(payment)
       .leftJoin(child, eq(child.id, payment.childId))
-      .orderBy(desc(receipt.dateReceived))
+      .where(sql`${payment.acknowledgmentReceipt} IS NOT NULL OR ${payment.transferReceipt} IS NOT NULL`)
+      .orderBy(desc(payment.dateSent))
       .limit(8);
     return rows.map((r) => ({
-      ...r.receipt,
+      ...r.payment,
       childName: r.childName ?? "—",
       amountUsd: r.amountUsd ?? 0,
       monthLabel: r.monthLabel ?? "",
@@ -154,15 +152,13 @@ export const dashboardRouter = router({
     }
 
     // Payments missing receipts
-    const allReceipts = await db.select({ paymentId: receipt.paymentId }).from(receipt);
-    const receiptSet = new Set(allReceipts.map((r) => r.paymentId));
     for (const p of allPayments) {
-      if (receiptSet.has(p.id)) continue;
+      if (p.acknowledgmentReceipt && p.transferReceipt) continue;
       const age = now - new Date(p.dateSent).getTime();
       if (age > 3 * DAY) {
         alerts.push({
           severity: "critical",
-          title: `إقرار استلام مفقود لأكثر من 3 أيام`,
+          title: `إقرار استلام/وصل تحويل مفقود لأكثر من 3 أيام`,
           detail: `الدفعة ${p.id}`,
           entityType: "payment",
           entityId: p.id,
@@ -170,7 +166,7 @@ export const dashboardRouter = router({
       } else {
         alerts.push({
           severity: "warning",
-          title: `دفعة بدون إقرار استلام`,
+          title: `دفعة بدون إقرار استلام أو وصل تحويل`,
           detail: `الدفعة ${p.id}`,
           entityType: "payment",
           entityId: p.id,
@@ -198,9 +194,7 @@ export const dashboardRouter = router({
     const noPaymentThisMonth = sponsored.filter((c) => !paidSet.has(c.id));
 
     const allPayments = await db.select().from(payment);
-    const allReceipts = await db.select({ paymentId: receipt.paymentId }).from(receipt);
-    const receiptSet = new Set(allReceipts.map((r) => r.paymentId));
-    const paymentsWithoutReceipts = allPayments.filter((p) => !receiptSet.has(p.id));
+    const paymentsWithoutReceipts = allPayments.filter((p) => !p.acknowledgmentReceipt || !p.transferReceipt);
 
     const allChildren = await db.select().from(child);
     const incompleteProfiles = allChildren.filter((c) => {
@@ -243,17 +237,12 @@ export const dashboardRouter = router({
         .where(and(...filters))
         .orderBy(desc(payment.dateSent));
 
-      const allReceipts = await db
-        .select({ paymentId: receipt.paymentId })
-        .from(receipt);
-      const receiptSet = new Set(allReceipts.map((r) => r.paymentId));
-
       const items = rows.map((r) => ({
         ...r.payment,
         childName: r.childName ?? "—",
         childResidence: r.childResidence ?? "—",
         sponsorName: r.sponsorName ?? "—",
-        hasReceipt: receiptSet.has(r.payment.id),
+        hasReceipt: !!r.payment.acknowledgmentReceipt && !!r.payment.transferReceipt,
       }));
 
       const totalCents = items.reduce((acc, p) => acc + p.amountUsd, 0);

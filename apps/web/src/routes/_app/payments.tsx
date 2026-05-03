@@ -34,6 +34,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useConfirm } from "@/components/confirm";
+import { FileUpload } from "@/components/file-upload";
 import { EmptyState, Field, PageHeader } from "@/components/page";
 import { downloadCSV } from "@/lib/csv";
 import {
@@ -58,6 +59,8 @@ type FormState = {
   dateSent: string; // YYYY-MM-DD
   paymentStatus: "paid" | "pending" | "late";
   financialStatus: "sent" | "confirmed" | "rejected";
+  acknowledgmentReceipt: string; // URL
+  transferReceipt: string; // URL
   notes: string;
 };
 
@@ -70,6 +73,8 @@ function defaultForm(): FormState {
     dateSent: new Date().toISOString().slice(0, 10),
     paymentStatus: "pending",
     financialStatus: "sent",
+    acknowledgmentReceipt: "",
+    transferReceipt: "",
     notes: "",
   };
 }
@@ -198,6 +203,8 @@ function PaymentsPage() {
       dateSent: new Date(p.dateSent).toISOString().slice(0, 10),
       paymentStatus: p.paymentStatus as FormState["paymentStatus"],
       financialStatus: p.financialStatus as FormState["financialStatus"],
+      acknowledgmentReceipt: p.acknowledgmentReceipt ?? "",
+      transferReceipt: p.transferReceipt ?? "",
       notes: p.notes ?? "",
     });
     setOpen(true);
@@ -220,6 +227,8 @@ function PaymentsPage() {
       dateSent: new Date(form.dateSent).getTime(),
       paymentStatus: form.paymentStatus,
       financialStatus: form.financialStatus,
+      acknowledgmentReceipt: form.acknowledgmentReceipt.trim() || null,
+      transferReceipt: form.transferReceipt.trim() || null,
       notes: form.notes.trim() || null,
     };
     if (editingId) {
@@ -252,7 +261,8 @@ function PaymentsPage() {
       PaymentStatus: PAYMENT_STATUS_LABEL[p.paymentStatus] ?? p.paymentStatus,
       FinancialStatus:
         FINANCIAL_STATUS_LABEL[p.financialStatus] ?? p.financialStatus,
-      HasReceipt: p.hasReceipt ? "نعم" : "لا",
+      AcknowledgmentReceipt: p.acknowledgmentReceipt ? "نعم" : "لا",
+      TransferReceipt: p.transferReceipt ? "نعم" : "لا",
     }));
     downloadCSV(`payments-${new Date().toISOString().slice(0, 10)}.csv`, rows);
   };
@@ -373,7 +383,8 @@ function PaymentsPage() {
                   <TableHead>التاريخ</TableHead>
                   <TableHead>الحالة</TableHead>
                   <TableHead>الحالة المالية</TableHead>
-                  <TableHead>الإقرار</TableHead>
+                  <TableHead>إقرار الاستلام</TableHead>
+                  <TableHead>وصل التحويل</TableHead>
                   <TableHead className="text-end">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
@@ -416,10 +427,39 @@ function PaymentsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {p.hasReceipt ? (
-                        <Badge variant="success">موجود</Badge>
+                      {p.acknowledgmentReceipt ? (
+                        <a
+                          href={p.acknowledgmentReceipt}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label="عرض إقرار الاستلام"
+                        >
+                          <img
+                            src={p.acknowledgmentReceipt}
+                            alt=""
+                            className="h-10 w-10 rounded border object-cover"
+                          />
+                        </a>
                       ) : (
-                        <Badge variant="warning">مفقود</Badge>
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {p.transferReceipt ? (
+                        <a
+                          href={p.transferReceipt}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label="عرض وصل التحويل"
+                        >
+                          <img
+                            src={p.transferReceipt}
+                            alt=""
+                            className="h-10 w-10 rounded border object-cover"
+                          />
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-end">
@@ -599,6 +639,26 @@ function PaymentsPage() {
                 rows={3}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              />
+            </Field>
+            <Field label="إقرار الاستلام (صورة)">
+              <FileUpload
+                value={form.acknowledgmentReceipt || null}
+                onChange={(v) =>
+                  setForm({ ...form, acknowledgmentReceipt: v ?? "" })
+                }
+                accept="image/*"
+                label="رفع صورة الإقرار"
+              />
+            </Field>
+            <Field label="وصل التحويل (صورة)">
+              <FileUpload
+                value={form.transferReceipt || null}
+                onChange={(v) =>
+                  setForm({ ...form, transferReceipt: v ?? "" })
+                }
+                accept="image/*"
+                label="رفع صورة الوصل"
               />
             </Field>
           </div>

@@ -1,11 +1,23 @@
 import { db } from "@kaheteyn/db";
-import { payment, child, sponsor, receipt } from "@kaheteyn/db/schema";
+import { payment, child, sponsor } from "@kaheteyn/db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { protectedProcedure, router } from "../index";
 import { logAudit, makeId } from "../lib";
+
+// Receipts may be either an http(s) URL or a base64-encoded image data URL.
+// Reject `javascript:` and other unsafe schemes.
+const receiptUrl = z
+  .string()
+  .max(8 * 1024 * 1024) // ~8MB cap on stored string
+  .refine(
+    (s) =>
+      /^https?:\/\//i.test(s) ||
+      /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(s),
+    { message: "يجب أن يكون رابط http(s) أو صورة" },
+  );
 
 const paymentInput = z.object({
   childId: z.string().min(1),
@@ -16,7 +28,8 @@ const paymentInput = z.object({
   dateSent: z.number().int(),
   paymentStatus: z.enum(["paid", "pending", "late"]).default("pending"),
   financialStatus: z.enum(["sent", "confirmed", "rejected"]).default("sent"),
-  receiptFile: z.string().nullable().optional(),
+  acknowledgmentReceipt: receiptUrl.nullable().optional(),
+  transferReceipt: receiptUrl.nullable().optional(),
   notes: z.string().nullable().optional(),
 });
 
@@ -53,16 +66,11 @@ export const paymentsRouter = router({
         .where(filters.length ? and(...filters) : undefined)
         .orderBy(desc(payment.dateSent));
 
-      // Attach hasReceipt
-      const receiptRows = await db
-        .select({ paymentId: receipt.paymentId })
-        .from(receipt);
-      const set = new Set(receiptRows.map((r) => r.paymentId));
+      // Attach receipt info
       return rows.map((r) => ({
         ...r.payment,
         childName: r.childName ?? "—",
         sponsorName: r.sponsorName ?? "—",
-        hasReceipt: set.has(r.payment.id),
       }));
     }),
 
@@ -166,7 +174,6 @@ export const paymentsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const [old] = await db.select().from(payment).where(eq(payment.id, input.id));
       if (!old) throw new TRPCError({ code: "NOT_FOUND" });
-      await db.delete(receipt).where(eq(receipt.paymentId, input.id));
       await db.delete(payment).where(eq(payment.id, input.id));
       await logAudit({
         actorId: ctx.session.user.id,

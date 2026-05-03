@@ -256,7 +256,8 @@ function ChildDetail() {
 									<TableHead>تاريخ الإرسال</TableHead>
 									<TableHead>الحالة</TableHead>
 									<TableHead>الحالة المالية</TableHead>
-									<TableHead>الإقرار</TableHead>
+									<TableHead>إقرار الاستلام</TableHead>
+									<TableHead>وصل التحويل</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -297,10 +298,39 @@ function ChildDetail() {
 											</Badge>
 										</TableCell>
 										<TableCell>
-											{p.hasReceipt ? (
-												<Badge variant="success">موجود</Badge>
+											{p.acknowledgmentReceipt ? (
+												<a
+													href={p.acknowledgmentReceipt}
+													target="_blank"
+													rel="noreferrer"
+													aria-label="عرض إقرار الاستلام"
+												>
+													<img
+														src={p.acknowledgmentReceipt}
+														alt=""
+														className="h-10 w-10 rounded border object-cover"
+													/>
+												</a>
 											) : (
-												<Badge variant="warning">مفقود</Badge>
+												<span className="text-muted-foreground text-xs">—</span>
+											)}
+										</TableCell>
+										<TableCell>
+											{p.transferReceipt ? (
+												<a
+													href={p.transferReceipt}
+													target="_blank"
+													rel="noreferrer"
+													aria-label="عرض وصل التحويل"
+												>
+													<img
+														src={p.transferReceipt}
+														alt=""
+														className="h-10 w-10 rounded border object-cover"
+													/>
+												</a>
+											) : (
+												<span className="text-muted-foreground text-xs">—</span>
 											)}
 										</TableCell>
 									</TableRow>

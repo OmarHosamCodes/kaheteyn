@@ -2,7 +2,7 @@ import { db } from "@kaheteyn/db";
 import { auditLog } from "@kaheteyn/db/schema";
 import { sql, like, desc } from "drizzle-orm";
 
-export type EntityType = "child" | "sponsor" | "payment" | "receipt" | "user";
+export type EntityType = "child" | "sponsor" | "payment" | "user";
 
 export async function nextChildId(): Promise<string> {
   const rows = await db
@@ -22,7 +22,7 @@ function formatNextId(prefix: string, padLen: number, existing: string[]): strin
   return `${prefix}${String(next).padStart(padLen, "0")}`;
 }
 
-export async function makeId(prefix: "CH-" | "SP-" | "PAY-" | "REC-" | "AUD-"): Promise<string> {
+export async function makeId(prefix: "CH-" | "SP-" | "PAY-" | "AUD-"): Promise<string> {
   const padLen = prefix === "CH-" ? 4 : prefix === "SP-" ? 3 : 6;
   const table =
     prefix === "CH-"
@@ -31,9 +31,7 @@ export async function makeId(prefix: "CH-" | "SP-" | "PAY-" | "REC-" | "AUD-"): 
         ? "sponsor"
         : prefix === "PAY-"
           ? "payment"
-          : prefix === "REC-"
-            ? "receipt"
-            : "audit_log";
+          : "audit_log";
   const result = await db.execute<{ id: string }>(
     sql.raw(`SELECT id FROM "${table}" WHERE id LIKE '${prefix}%' ORDER BY id DESC LIMIT 1`),
   );

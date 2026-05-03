@@ -29,7 +29,6 @@ const ENTITY_LABEL: Record<string, string> = {
   child: "طفل",
   sponsor: "كفيل",
   payment: "دفعة",
-  receipt: "إقرار",
   user: "مستخدم",
 };
 
@@ -128,7 +127,6 @@ function AuditPage() {
             <option value="child">طفل</option>
             <option value="sponsor">كفيل</option>
             <option value="payment">دفعة</option>
-            <option value="receipt">إقرار</option>
             <option value="user">مستخدم</option>
           </Select>
           <Select

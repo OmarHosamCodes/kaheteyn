@@ -4,7 +4,6 @@ import { auditRouter } from "./audit";
 import { childrenRouter } from "./children";
 import { dashboardRouter } from "./dashboard";
 import { paymentsRouter } from "./payments";
-import { receiptsRouter } from "./receipts";
 import { sponsorsRouter } from "./sponsors";
 
 export const appRouter = router({
@@ -16,7 +15,6 @@ export const appRouter = router({
   children: childrenRouter,
   sponsors: sponsorsRouter,
   payments: paymentsRouter,
-  receipts: receiptsRouter,
   audit: auditRouter,
   dashboard: dashboardRouter,
   admins: adminsRouter,

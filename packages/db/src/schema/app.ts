@@ -71,7 +71,8 @@ export const payment = pgTable(
     dateSent: timestamp("date_sent", { withTimezone: true, mode: "date" }).notNull(),
     paymentStatus: text("payment_status").default("pending").notNull(), // paid | pending | late
     financialStatus: text("financial_status").default("sent").notNull(), // sent | confirmed | rejected
-    receiptFile: text("receipt_file"),
+    acknowledgmentReceipt: text("acknowledgment_receipt"), // image file
+    transferReceipt: text("transfer_receipt"), // image file
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
@@ -88,25 +89,6 @@ export const payment = pgTable(
   ],
 );
 
-// Receipt / Acknowledgment (إقرار استلام)
-export const receipt = pgTable(
-  "receipt",
-  {
-    id: text("id").primaryKey(), // REC-...
-    paymentId: text("payment_id").notNull(),
-    document: text("document"), // file
-    dateReceived: timestamp("date_received", { withTimezone: true, mode: "date" }).notNull(),
-    notes: text("notes"),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .$onUpdate(() => new Date())
-      .notNull(),
-  },
-  (t) => [index("receipt_payment_idx").on(t.paymentId)],
-);
 
 // Audit Log (سجل العمليات)
 export const auditLog = pgTable(
@@ -118,7 +100,7 @@ export const auditLog = pgTable(
       .notNull(),
     actorId: text("actor_id"),
     actorName: text("actor_name"),
-    entityType: text("entity_type").notNull(), // child | sponsor | payment | receipt
+    entityType: text("entity_type").notNull(), // child | sponsor | payment | user
     entityId: text("entity_id"),
     action: text("action").notNull(), // create | update | delete
     oldValue: text("old_value"), // JSON
@@ -138,8 +120,6 @@ export type Sponsor = typeof sponsor.$inferSelect;
 export type NewSponsor = typeof sponsor.$inferInsert;
 export type Payment = typeof payment.$inferSelect;
 export type NewPayment = typeof payment.$inferInsert;
-export type Receipt = typeof receipt.$inferSelect;
-export type NewReceipt = typeof receipt.$inferInsert;
 export type AuditLog = typeof auditLog.$inferSelect;
 
 // Use any imported relation references

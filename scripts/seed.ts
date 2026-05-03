@@ -14,7 +14,7 @@ import { auditLog, child, payment, sponsor, user } from "@kaheteyn/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 async function makeId(
-  prefix: "CH-" | "SP-" | "PAY-" | "REC-" | "AUD-",
+  prefix: "CH-" | "SP-" | "PAY-" | "AUD-",
 ): Promise<string> {
   const padLen = prefix === "CH-" ? 4 : prefix === "SP-" ? 3 : 6;
   const table =
@@ -24,9 +24,7 @@ async function makeId(
         ? "sponsor"
         : prefix === "PAY-"
           ? "payment"
-          : prefix === "REC-"
-            ? "receipt"
-            : "audit_log";
+          : "audit_log";
   const result = await db.execute<{ id: string }>(
     sql.raw(
       `SELECT id FROM "${table}" WHERE id LIKE '${prefix}%' ORDER BY id DESC LIMIT 1`,

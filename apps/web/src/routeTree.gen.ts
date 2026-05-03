@@ -14,7 +14,6 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppSponsorsRouteImport } from './routes/_app/sponsors'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
-import { Route as AppReceiptsRouteImport } from './routes/_app/receipts'
 import { Route as AppPaymentsRouteImport } from './routes/_app/payments'
 import { Route as AppFollowUpRouteImport } from './routes/_app/follow-up'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
@@ -47,11 +46,6 @@ const AppSponsorsRoute = AppSponsorsRouteImport.update({
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppReceiptsRoute = AppReceiptsRouteImport.update({
-  id: '/receipts',
-  path: '/receipts',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPaymentsRoute = AppPaymentsRouteImport.update({
@@ -108,7 +102,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/follow-up': typeof AppFollowUpRoute
   '/payments': typeof AppPaymentsRoute
-  '/receipts': typeof AppReceiptsRoute
   '/reports': typeof AppReportsRoute
   '/sponsors': typeof AppSponsorsRoute
   '/children/$id': typeof AppChildrenIdRoute
@@ -124,7 +117,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/follow-up': typeof AppFollowUpRoute
   '/payments': typeof AppPaymentsRoute
-  '/receipts': typeof AppReceiptsRoute
   '/reports': typeof AppReportsRoute
   '/sponsors': typeof AppSponsorsRoute
   '/children/$id': typeof AppChildrenIdRoute
@@ -142,7 +134,6 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/follow-up': typeof AppFollowUpRoute
   '/_app/payments': typeof AppPaymentsRoute
-  '/_app/receipts': typeof AppReceiptsRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/sponsors': typeof AppSponsorsRoute
   '/_app/children/$id': typeof AppChildrenIdRoute
@@ -160,7 +151,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/follow-up'
     | '/payments'
-    | '/receipts'
     | '/reports'
     | '/sponsors'
     | '/children/$id'
@@ -176,7 +166,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/follow-up'
     | '/payments'
-    | '/receipts'
     | '/reports'
     | '/sponsors'
     | '/children/$id'
@@ -193,7 +182,6 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/follow-up'
     | '/_app/payments'
-    | '/_app/receipts'
     | '/_app/reports'
     | '/_app/sponsors'
     | '/_app/children/$id'
@@ -245,13 +233,6 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AppReportsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/receipts': {
-      id: '/_app/receipts'
-      path: '/receipts'
-      fullPath: '/receipts'
-      preLoaderRoute: typeof AppReceiptsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/payments': {
@@ -326,7 +307,6 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppFollowUpRoute: typeof AppFollowUpRoute
   AppPaymentsRoute: typeof AppPaymentsRoute
-  AppReceiptsRoute: typeof AppReceiptsRoute
   AppReportsRoute: typeof AppReportsRoute
   AppSponsorsRoute: typeof AppSponsorsRoute
   AppChildrenIdRoute: typeof AppChildrenIdRoute
@@ -339,7 +319,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppFollowUpRoute: AppFollowUpRoute,
   AppPaymentsRoute: AppPaymentsRoute,
-  AppReceiptsRoute: AppReceiptsRoute,
   AppReportsRoute: AppReportsRoute,
   AppSponsorsRoute: AppSponsorsRoute,
   AppChildrenIdRoute: AppChildrenIdRoute,
