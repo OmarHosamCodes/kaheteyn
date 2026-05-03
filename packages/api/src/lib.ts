@@ -6,9 +6,7 @@ export type EntityType = "child" | "sponsor" | "payment" | "receipt" | "user";
 
 export async function nextChildId(): Promise<string> {
   const rows = await db
-    .select({ id: sql<string>`id` })
-    .from(sql`child` as never)
-    .all()
+    .execute<{ id: string }>(sql`SELECT id FROM "child"`)
     .catch(() => [] as { id: string }[]);
   return formatNextId("CH-", 4, rows.map((r) => r.id));
 }
@@ -36,8 +34,8 @@ export async function makeId(prefix: "CH-" | "SP-" | "PAY-" | "REC-" | "AUD-"): 
           : prefix === "REC-"
             ? "receipt"
             : "audit_log";
-  const result = await db.all<{ id: string }>(
-    sql.raw(`SELECT id FROM ${table} WHERE id LIKE '${prefix}%' ORDER BY id DESC LIMIT 1`),
+  const result = await db.execute<{ id: string }>(
+    sql.raw(`SELECT id FROM "${table}" WHERE id LIKE '${prefix}%' ORDER BY id DESC LIMIT 1`),
   );
   const last = result[0]?.id;
   let n = 0;

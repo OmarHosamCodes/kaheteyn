@@ -27,9 +27,9 @@ async function makeId(
           : prefix === "REC-"
             ? "receipt"
             : "audit_log";
-  const result = await db.all<{ id: string }>(
+  const result = await db.execute<{ id: string }>(
     sql.raw(
-      `SELECT id FROM ${table} WHERE id LIKE '${prefix}%' ORDER BY id DESC LIMIT 1`,
+      `SELECT id FROM "${table}" WHERE id LIKE '${prefix}%' ORDER BY id DESC LIMIT 1`,
     ),
   );
   const last = result[0]?.id;

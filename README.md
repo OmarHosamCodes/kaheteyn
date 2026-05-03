@@ -12,7 +12,7 @@ This project was created with [Better-T-Stack](https://github.com/AmanVarshney01
 - **Shared UI package** - shadcn/ui primitives live in `packages/ui`
 - **tRPC** - End-to-end type-safe APIs
 - **Drizzle** - TypeScript-first ORM
-- **SQLite/Turso** - Database engine
+- **PostgreSQL** - Database engine
 - **Authentication** - Better-Auth
 - **Biome** - Linting and formatting
 - **Nx** - Smart monorepo task orchestration and caching
@@ -27,20 +27,24 @@ bun install
 
 ## Database Setup
 
-This project uses SQLite with Drizzle ORM.
+This project uses PostgreSQL with Drizzle ORM.
 
-1. Start the local SQLite database (optional):
+1. Start a local Postgres with Docker (uses `docker-compose.yml`):
 
 ```bash
-bun run db:local
+docker compose up -d postgres
 ```
 
-2. Update your `.env` file in the `apps/web` directory with the appropriate connection details if needed.
+2. The default `apps/web/.env` already points at this local instance:
 
-3. Apply the schema to your database:
+```
+DATABASE_URL=postgres://kaheteyn:kaheteyn@localhost:5432/kaheteyn
+```
+
+3. Apply the schema:
 
 ```bash
-bun run db:push
+bun run db:migrate
 ```
 
 Then, run the development server:
@@ -104,5 +108,4 @@ kaheteyn/
 - `bun run db:generate`: Generate database client/types
 - `bun run db:migrate`: Run database migrations
 - `bun run db:studio`: Open database studio UI
-- `bun run db:local`: Start the local SQLite database
 - `bun run check`: Run Biome formatting and linting

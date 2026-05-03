@@ -6,6 +6,6 @@
     }
   },
   "deploy": {
-    "startCommand": "bun run apps/web/server.ts"
+    "startCommand": "bun run --cwd packages/db db:migrate && bun run apps/web/server.ts"
   }
 }

@@ -12,8 +12,7 @@
       "typescript": "^6",
       "@types/node": "^22.13.14",
       "next-themes": "^0.4.6",
-      "@libsql/client": "0.15.15",
-      "libsql": "0.5.22",
+      "postgres": "^3.4.7",
       "@trpc/server": "^11.16.0",
       "@trpc/client": "^11.16.0",
       "better-auth": "1.6.9",
@@ -31,7 +30,6 @@
     "db:studio": "nx run-many -t db:studio --projects=@kaheteyn/db",
     "db:generate": "nx run-many -t db:generate --projects=@kaheteyn/db",
     "db:migrate": "nx run-many -t db:migrate --projects=@kaheteyn/db",
-    "db:local": "nx run-many -t db:local --projects=@kaheteyn/db",
     "seed": "bun --env-file=../../apps/web/.env run --cwd packages/db ../../scripts/seed.ts",
     "check": "biome check --write ."
   },

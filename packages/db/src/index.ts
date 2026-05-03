@@ -1,15 +1,17 @@
 import { env } from "@kaheteyn/env/server";
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 import * as schema from "./schema";
 
 export function createDb() {
-  const client = createClient({
-    url: env.DATABASE_URL,
+  const client = postgres(env.DATABASE_URL, {
+    // Reasonable defaults for serverless / long-running Bun server.
+    max: env.NODE_ENV === "production" ? 10 : 5,
+    prepare: false,
   });
 
-  return drizzle({ client, schema });
+  return drizzle(client, { schema });
 }
 
 export const db = createDb();

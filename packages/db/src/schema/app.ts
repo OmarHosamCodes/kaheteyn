@@ -1,10 +1,9 @@
-import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
 
 // Children (الأطفال)
-export const child = sqliteTable(
+export const child = pgTable(
   "child",
   {
     id: text("id").primaryKey(), // CH-####
@@ -29,11 +28,11 @@ export const child = sqliteTable(
     photo: text("photo"), // data URL or path
     birthCertificate: text("birth_certificate"),
     notes: text("notes"),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
       .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
   },
@@ -44,23 +43,23 @@ export const child = sqliteTable(
 );
 
 // Sponsors (الكفلاء)
-export const sponsor = sqliteTable("sponsor", {
+export const sponsor = pgTable("sponsor", {
   id: text("id").primaryKey(), // SP-###
   name: text("name").notNull(),
   phone: text("phone"),
   paymentMethod: text("payment_method"), // bank_palestine | palpay | bank_transfer
   notes: text("notes"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    .defaultNow()
     .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
 });
 
 // Payments (الدفعات)
-export const payment = sqliteTable(
+export const payment = pgTable(
   "payment",
   {
     id: text("id").primaryKey(), // PAY-...
@@ -69,16 +68,16 @@ export const payment = sqliteTable(
     monthLabel: text("month_label").notNull(), // e.g. "مايو 2024"
     monthKey: text("month_key").notNull(), // YYYY-MM for grouping
     amountUsd: integer("amount_usd").notNull(), // cents
-    dateSent: integer("date_sent", { mode: "timestamp_ms" }).notNull(),
+    dateSent: timestamp("date_sent", { withTimezone: true, mode: "date" }).notNull(),
     paymentStatus: text("payment_status").default("pending").notNull(), // paid | pending | late
     financialStatus: text("financial_status").default("sent").notNull(), // sent | confirmed | rejected
     receiptFile: text("receipt_file"),
     notes: text("notes"),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
       .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
   },
@@ -90,19 +89,19 @@ export const payment = sqliteTable(
 );
 
 // Receipt / Acknowledgment (إقرار استلام)
-export const receipt = sqliteTable(
+export const receipt = pgTable(
   "receipt",
   {
     id: text("id").primaryKey(), // REC-...
     paymentId: text("payment_id").notNull(),
     document: text("document"), // file
-    dateReceived: integer("date_received", { mode: "timestamp_ms" }).notNull(),
+    dateReceived: timestamp("date_received", { withTimezone: true, mode: "date" }).notNull(),
     notes: text("notes"),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
       .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
   },
@@ -110,12 +109,12 @@ export const receipt = sqliteTable(
 );
 
 // Audit Log (سجل العمليات)
-export const auditLog = sqliteTable(
+export const auditLog = pgTable(
   "audit_log",
   {
     id: text("id").primaryKey(),
-    timestamp: integer("timestamp", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    timestamp: timestamp("timestamp", { withTimezone: true, mode: "date" })
+      .defaultNow()
       .notNull(),
     actorId: text("actor_id"),
     actorName: text("actor_name"),

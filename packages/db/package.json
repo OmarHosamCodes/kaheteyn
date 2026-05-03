@@ -13,7 +13,6 @@
     }
   },
   "scripts": {
-    "db:local": "turso dev --db-file local.db",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
@@ -21,10 +20,9 @@
   },
   "dependencies": {
     "@kaheteyn/env": "workspace:*",
-    "@libsql/client": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "^0.45.1",
-    "libsql": "catalog:",
+    "postgres": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
