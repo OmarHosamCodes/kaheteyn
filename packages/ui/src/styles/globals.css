@@ -157,7 +157,6 @@
   .print-only {
     display: block !important;
   }
-  aside,
   nav.sidebar {
     display: none !important;
   }
