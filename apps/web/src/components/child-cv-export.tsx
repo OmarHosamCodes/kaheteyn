@@ -142,7 +142,7 @@ export function ChildCvExport({
 
 	return (
 		<div
-			className="pointer-events-none fixed top-0 left-0 -z-10 h-0 w-0 overflow-hidden bg-white text-black opacity-0 print:pointer-events-auto print:static print:z-auto print:h-auto print:w-auto print:overflow-visible print:opacity-100"
+			className="pointer-events-none fixed top-0 left-0 -z-10 h-0 w-0 overflow-hidden bg-[oklch(0.992_0.006_100)] text-[oklch(0.18_0.01_155)] opacity-0 print:pointer-events-auto print:static print:z-auto print:h-auto print:w-auto print:overflow-visible print:opacity-100"
 			data-child-cv-export="true"
 			data-export-photo-ready={photoReady ? "true" : "false"}
 			dir="rtl"
@@ -151,194 +151,214 @@ export function ChildCvExport({
 				{"@media print { @page { size: A4 portrait; margin: 12mm; } }"}
 			</style>
 
-			<div className="mx-auto flex min-h-[273mm] max-w-[190mm] flex-col text-[15px] leading-8">
-				<div className="mb-4 h-1 w-full rounded-full bg-[#61b48c]" />
-				<header className="pb-5">
-					<h1 className="mb-6 text-center font-bold text-[26px]">{title}</h1>
-
-					<div className="mb-3 flex items-center justify-between gap-5">
-						<div className="rounded-[1.75rem] bg-zinc-500 px-6 py-3 font-semibold text-[36px] text-white leading-none tracking-tight">
-							١/١
-						</div>
-
-						<div className="flex-1 text-center font-semibold text-[18px]">
-							<span className="ms-2 font-bold">الجهة المنفذة:</span>
-							مبادرة "كهاتين" لكفالة أبناء شهداء غزة
+			<div className="mx-auto flex min-h-[273mm] w-[186mm] flex-col text-[11px] leading-[1.65]">
+				<header className="pb-4">
+					<div className="flex items-start justify-between gap-6">
+						<div className="min-w-0 flex-1">
+							<p className="font-medium text-[10px] text-[oklch(0.48_0.026_162)]">
+								مبادرة كهاتين لكفالة أبناء شهداء غزة
+							</p>
+							<h1 className="mt-1 font-bold text-[19px] leading-tight">
+								{title}
+							</h1>
+							<p className="mt-1 text-[10px] text-[oklch(0.48_0.026_162)]">
+								تاريخ فتح الملف: {formatDate(child.createdAt)}
+							</p>
 						</div>
 
 						<img
 							src="/logo.png"
 							alt="كهاتين"
-							className="h-20 w-auto shrink-0 object-contain"
+							className="h-[18mm] w-auto shrink-0 object-contain"
 						/>
 					</div>
 
-					<div className="border-zinc-700 border-b-[3px] pb-3 font-semibold text-[17px]">
-						تاريخ فتح الملف:
-						<span className="me-2 font-normal">
-							{formatDate(child.createdAt)}
-						</span>
-					</div>
+					<div className="mt-4 border-[oklch(0.5_0.14_149)] border-t" />
 				</header>
 
-				<div className="flex items-start gap-8">
-					<aside className="w-[190px] shrink-0">
-						<SectionTitle>صورة شخصية</SectionTitle>
+				<div className="grid grid-cols-[42mm_1fr] items-start gap-5">
+					<aside className="space-y-3">
+						<Section title="الصورة الشخصية">
+							<div className="border border-[oklch(0.875_0.016_112)] bg-[oklch(0.955_0.013_102)] p-2">
+								{child.photo ? (
+									<canvas
+										ref={photoCanvasRef}
+										aria-label={child.fullName}
+										data-export-photo="true"
+										className="h-[50mm] w-full object-cover"
+									/>
+								) : (
+									<div className="flex h-[50mm] flex-col items-center justify-center text-[oklch(0.5_0.14_149)]">
+										<ChildPlaceholderIcon />
+										<span className="mt-2 font-medium text-[14px]">طفل</span>
+									</div>
+								)}
+							</div>
+						</Section>
 
-						<div className="mt-4 border-[3px] border-zinc-500 bg-[#edf7f3] p-3">
-							{child.photo ? (
-								<canvas
-									ref={photoCanvasRef}
-									aria-label={child.fullName}
-									data-export-photo="true"
-									className="h-[222px] w-full object-cover"
+						<Section title="ملخص الكفالة">
+							<div className="divide-y divide-[oklch(0.875_0.016_112)] border border-[oklch(0.875_0.016_112)]">
+								<StackedField label="حالة الملف" value={title} />
+								<StackedField label="الكافل" value={sponsor?.name} />
+								<StackedField
+									label="قيمة الكفالة"
+									value={formatAmount(monthlyAmount)}
 								/>
-							) : (
-								<div className="flex h-[222px] flex-col items-center justify-center text-[#61b48c]">
-									<ChildPlaceholderIcon />
-									<span className="mt-2 font-medium text-[22px]">طفل</span>
-								</div>
-							)}
-						</div>
+								<StackedField
+									label="تاريخ البدء"
+									value={
+										sponsorshipStartDate
+											? formatDate(sponsorshipStartDate)
+											: EMPTY_VALUE
+									}
+								/>
+							</div>
+						</Section>
 					</aside>
 
-					<div className="min-w-0 flex-1 space-y-8">
-						<section>
-							<SectionTitle>البيانات الشخصية</SectionTitle>
+					<div className="min-w-0 flex-1 space-y-4">
+						<Section title="البيانات الشخصية">
+							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
+								<DataField label="الاسم الكامل" value={child.fullName} wide />
+								<DataField
+									label="تاريخ الميلاد"
+									value={formatDate(child.birthDate)}
+								/>
+								<DataField label="العمر" value={child.age} />
+								<DataField label="الجنس" value={formatGender(child.gender)} />
+								<DataField label="مكان الإقامة" value={child.residence} />
+								<DataField label="الحالة الصحية" value={child.healthStatus} />
+								<DataField label="المرحلة الدراسية" value={child.schoolStage} />
+							</dl>
+						</Section>
 
-							<div className="mt-4 space-y-4">
-								<LineField label="الاسم الكامل" value={child.fullName} />
-
-								<div className="grid grid-cols-2 gap-x-8 gap-y-4">
-									<LineField
-										label="تاريخ الميلاد"
-										value={formatDate(child.birthDate)}
-									/>
-									<LineField label="العمر" value={child.age} />
-									<LineField label="الجنس" value={formatGender(child.gender)} />
-									<LineField
-										label="مكان الإقامة"
-										value={child.residence}
-										className="col-span-2"
-									/>
-									<LineField label="الحالة الصحية" value={child.healthStatus} />
-									<LineField
-										label="المرحلة الدراسية"
-										value={child.schoolStage}
-									/>
-								</div>
-							</div>
-						</section>
-
-						<section>
-							<SectionTitle>البيانات العائلية</SectionTitle>
-
-							<div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
-								<LineField label="اسم الأب" value={child.fatherName} />
-								<LineField label="اسم الأم" value={child.motherName} />
-								<LineField
+						<Section title="البيانات العائلية">
+							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
+								<DataField label="اسم الأب" value={child.fatherName} />
+								<DataField label="اسم الأم" value={child.motherName} />
+								<DataField
 									label="تاريخ وفاة الأب"
 									value={formatDate(child.fatherDeathDate)}
 								/>
-								<LineField
+								<DataField
 									label="سبب وفاة الأب"
 									value={child.fatherDeathCause}
 								/>
-								<LineField
+								<DataField
 									label="عدد الإخوة والأخوات"
 									value={child.siblingsCount}
 								/>
-								<LineField label="الوصي الشرعي" value={child.guardianName} />
-								<LineField label="صلة القرابة" value={child.guardianRelation} />
-								<LineField label="رقم الهاتف" value={child.phone} />
-								<LineField
+								<DataField label="الوصي الشرعي" value={child.guardianName} />
+								<DataField label="صلة القرابة" value={child.guardianRelation} />
+								<DataField label="رقم الهاتف" value={child.phone} />
+								<DataField
 									label="حساب البنك / المحفظة"
 									value={child.guardianAccount}
-									className="col-span-2"
+									wide
 								/>
-							</div>
-						</section>
+							</dl>
+						</Section>
 
-						<section>
-							<SectionTitle>الوضع المعيشي</SectionTitle>
-
-							<div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
-								<LineField label="نوع السكن" value={EMPTY_VALUE} />
-								<LineField label="مصادر الدخل" value={EMPTY_VALUE} />
-								<LineField
+						<Section title="الوضع المعيشي">
+							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
+								<DataField label="نوع السكن" value={EMPTY_VALUE} />
+								<DataField label="مصادر الدخل" value={EMPTY_VALUE} />
+								<DataField
 									label="الاحتياجات الأساسية"
 									value={EMPTY_VALUE}
-									className="col-span-2"
+									wide
 								/>
-							</div>
-						</section>
+							</dl>
+						</Section>
 
-						<section>
-							<SectionTitle>تفاصيل الكفالة</SectionTitle>
-
-							<div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
-								<LineField label="اسم الكافل" value={sponsor?.name} />
-								<LineField label="بلد الكافل" value={EMPTY_VALUE} />
-								<LineField
+						<Section title="تفاصيل الكفالة">
+							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
+								<DataField label="اسم الكافل" value={sponsor?.name} />
+								<DataField label="بلد الكافل" value={EMPTY_VALUE} />
+								<DataField
 									label="قيمة الكفالة الشهرية"
 									value={formatAmount(monthlyAmount)}
 								/>
-								<LineField
+								<DataField
 									label="مدة الكفالة"
 									value={sponsor ? "مفتوحة" : EMPTY_VALUE}
 								/>
-								<LineField
+								<DataField
 									label="تاريخ بدء الكفالة"
 									value={
 										sponsorshipStartDate
 											? formatDate(sponsorshipStartDate)
 											: EMPTY_VALUE
 									}
-									className="col-span-2"
+									wide
 								/>
-							</div>
-						</section>
+							</dl>
+						</Section>
 
-						<section>
-							<SectionTitle>ملاحظات إضافية</SectionTitle>
-							<div className="mt-4 min-h-24 whitespace-pre-wrap border-black border-b px-1 pb-2 text-[17px] leading-8">
+						<Section title="ملاحظات إضافية">
+							<div className="min-h-[24mm] whitespace-pre-wrap border border-[oklch(0.875_0.016_112)] px-3 py-2 text-[12px] leading-[1.8]">
 								{child.notes ?? EMPTY_VALUE}
 							</div>
-						</section>
+						</Section>
 					</div>
 				</div>
 
-				<div className="mt-auto border-zinc-400 border-b border-dotted pt-10" />
+				<footer className="mt-auto pt-6 text-[9px] text-[oklch(0.48_0.026_162)]">
+					<div className="border-[oklch(0.875_0.016_112)] border-t pt-2">
+						<div className="flex items-center justify-between gap-4">
+							<span>صفحة ١</span>
+							<span>تم إنشاؤه من نظام كهاتين</span>
+						</div>
+					</div>
+				</footer>
 			</div>
 		</div>
 	);
 }
 
-function SectionTitle({ children }: { children: ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
 	return (
-		<h2 className="inline-block border-black border-b pb-1 font-bold text-[18px] leading-none">
-			{children}
-		</h2>
+		<section>
+			<h2 className="border border-[oklch(0.875_0.016_112)] bg-[oklch(0.955_0.013_102)] px-2 py-1 font-bold text-[11px] leading-tight">
+				{title}
+			</h2>
+			<div className="mt-2">{children}</div>
+		</section>
 	);
 }
 
-function LineField({
+function DataField({
 	label,
 	value,
-	className,
+	wide = false,
 }: {
 	label: string;
 	value: ReactNode;
-	className?: string;
+	wide?: boolean;
 }) {
 	return (
-		<div className={className}>
-			<div className="flex items-end gap-3 text-[17px] leading-none">
-				<span className="shrink-0 font-semibold">{label}:</span>
-				<span className="min-w-0 flex-1 border-black border-b pb-1 text-center font-normal leading-tight">
-					{value ?? EMPTY_VALUE}
-				</span>
-			</div>
+		<div
+			className={`min-h-[10mm] border-[oklch(0.875_0.016_112)] border-b px-2 py-1.5 even:border-r ${wide ? "col-span-2" : ""}`}
+		>
+			<dt className="font-medium text-[9px] text-[oklch(0.48_0.026_162)] leading-tight">
+				{label}
+			</dt>
+			<dd className="mt-0.5 min-h-[14px] font-semibold text-[11.5px] leading-snug">
+				{value ?? EMPTY_VALUE}
+			</dd>
+		</div>
+	);
+}
+
+function StackedField({ label, value }: { label: string; value: ReactNode }) {
+	return (
+		<div className="px-2 py-1.5">
+			<p className="font-medium text-[9px] text-[oklch(0.48_0.026_162)] leading-tight">
+				{label}
+			</p>
+			<p className="mt-0.5 min-h-[14px] font-semibold text-[11px] leading-snug">
+				{value ?? EMPTY_VALUE}
+			</p>
 		</div>
 	);
 }
