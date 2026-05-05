@@ -35,6 +35,7 @@ import { toast } from "sonner";
 
 import { useConfirm } from "@/components/confirm";
 import { FileUpload } from "@/components/file-upload";
+import { ImagePreviewDialog } from "@/components/image-preview-dialog";
 import { EmptyState, Field, PageHeader } from "@/components/page";
 import {
 	currentMonthKey,
@@ -457,36 +458,32 @@ function PaymentsPage() {
 										</TableCell>
 										<TableCell>
 											{p.acknowledgmentReceipt ? (
-												<a
-													href={p.acknowledgmentReceipt}
-													target="_blank"
-													rel="noreferrer"
-													aria-label="عرض إقرار الاستلام"
+												<ImagePreviewDialog
+													src={p.acknowledgmentReceipt}
+													title="إقرار الاستلام"
 												>
 													<img
 														src={p.acknowledgmentReceipt}
 														alt=""
-														className="h-10 w-10 rounded border object-cover"
+														className="size-10 rounded border object-cover"
 													/>
-												</a>
+												</ImagePreviewDialog>
 											) : (
 												<span className="text-muted-foreground text-xs">—</span>
 											)}
 										</TableCell>
 										<TableCell>
 											{p.transferReceipt ? (
-												<a
-													href={p.transferReceipt}
-													target="_blank"
-													rel="noreferrer"
-													aria-label="عرض وصل التحويل"
+												<ImagePreviewDialog
+													src={p.transferReceipt}
+													title="وصل التحويل"
 												>
 													<img
 														src={p.transferReceipt}
 														alt=""
-														className="h-10 w-10 rounded border object-cover"
+														className="size-10 rounded border object-cover"
 													/>
-												</a>
+												</ImagePreviewDialog>
 											) : (
 												<span className="text-muted-foreground text-xs">—</span>
 											)}

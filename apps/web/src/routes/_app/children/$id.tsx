@@ -26,6 +26,10 @@ import { toast } from "sonner";
 
 import { ChildCvExport } from "@/components/child-cv-export";
 import { useConfirm } from "@/components/confirm";
+import {
+	ImagePreviewButton,
+	ImagePreviewDialog,
+} from "@/components/image-preview-dialog";
 import { PageHeader } from "@/components/page";
 import {
 	FINANCIAL_STATUS_LABEL,
@@ -145,13 +149,15 @@ function ChildDetail() {
 				<Card className="lg:col-span-1">
 					<CardContent className="pt-6 text-center">
 						{c.photo ? (
-							<img
-								src={c.photo}
-								alt=""
-								className="mx-auto h-32 w-32 rounded-full border object-cover"
-							/>
+							<ImagePreviewDialog src={c.photo} title="الصورة الشخصية">
+								<img
+									src={c.photo}
+									alt=""
+									className="mx-auto size-32 rounded-full border object-cover"
+								/>
+							</ImagePreviewDialog>
 						) : (
-							<div className="mx-auto grid h-32 w-32 place-items-center rounded-full bg-muted">
+							<div className="mx-auto grid size-32 place-items-center rounded-full bg-muted">
 								<UserCircleIcon className="size-16 text-muted-foreground" />
 							</div>
 						)}
@@ -164,7 +170,13 @@ function ChildDetail() {
 							)}
 							{c.gender && <Badge variant="outline">{c.gender}</Badge>}
 						</div>
-						{c.birthCertificate ? (
+						{c.birthCertificate?.startsWith("data:image") ? (
+							<ImagePreviewButton
+								src={c.birthCertificate}
+								title="عرض شهادة الميلاد"
+								className="no-print mt-4 px-0 text-xs"
+							/>
+						) : c.birthCertificate ? (
 							<a
 								href={c.birthCertificate}
 								target="_blank"
@@ -299,36 +311,32 @@ function ChildDetail() {
 										</TableCell>
 										<TableCell>
 											{p.acknowledgmentReceipt ? (
-												<a
-													href={p.acknowledgmentReceipt}
-													target="_blank"
-													rel="noreferrer"
-													aria-label="عرض إقرار الاستلام"
+												<ImagePreviewDialog
+													src={p.acknowledgmentReceipt}
+													title="إقرار الاستلام"
 												>
 													<img
 														src={p.acknowledgmentReceipt}
 														alt=""
-														className="h-10 w-10 rounded border object-cover"
+														className="size-10 rounded border object-cover"
 													/>
-												</a>
+												</ImagePreviewDialog>
 											) : (
 												<span className="text-muted-foreground text-xs">—</span>
 											)}
 										</TableCell>
 										<TableCell>
 											{p.transferReceipt ? (
-												<a
-													href={p.transferReceipt}
-													target="_blank"
-													rel="noreferrer"
-													aria-label="عرض وصل التحويل"
+												<ImagePreviewDialog
+													src={p.transferReceipt}
+													title="وصل التحويل"
 												>
 													<img
 														src={p.transferReceipt}
 														alt=""
-														className="h-10 w-10 rounded border object-cover"
+														className="size-10 rounded border object-cover"
 													/>
-												</a>
+												</ImagePreviewDialog>
 											) : (
 												<span className="text-muted-foreground text-xs">—</span>
 											)}

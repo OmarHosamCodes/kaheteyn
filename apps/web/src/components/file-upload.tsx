@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import { ImagePreviewDialog } from "@/components/image-preview-dialog";
+
 interface FileUploadProps {
 	value?: string | null;
 	onChange: (dataUrl: string | null) => void;
@@ -52,11 +54,13 @@ export function FileUpload({
 			{value ? (
 				<div className="flex items-center gap-2">
 					{isImage ? (
-						<img
-							src={value}
-							alt=""
-							className="zoom-in-95 h-16 w-16 animate-in rounded-md border object-cover duration-200"
-						/>
+						<ImagePreviewDialog src={value} title="عرض الصورة">
+							<img
+								src={value}
+								alt=""
+								className="zoom-in-95 size-16 animate-in rounded-md border object-cover duration-200"
+							/>
+						</ImagePreviewDialog>
 					) : isPdf ? (
 						<a
 							href={value}
