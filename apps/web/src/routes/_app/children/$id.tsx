@@ -170,22 +170,37 @@ function ChildDetail() {
 							)}
 							{c.gender && <Badge variant="outline">{c.gender}</Badge>}
 						</div>
-						{c.birthCertificate?.startsWith("data:image") ? (
-							<ImagePreviewButton
-								src={c.birthCertificate}
-								title="عرض شهادة الميلاد"
-								className="no-print mt-4 px-0 text-xs"
-							/>
-						) : c.birthCertificate ? (
-							<a
-								href={c.birthCertificate}
-								target="_blank"
-								rel="noreferrer"
-								className="no-print mt-4 inline-block text-primary text-xs underline"
-							>
-								عرض شهادة الميلاد
-							</a>
-						) : null}
+						<div className="no-print mt-4 flex flex-col items-center gap-2">
+							{[
+								{ label: "شهادة الميلاد", value: c.birthCertificate },
+								{ label: "هوية الوصي", value: c.guardianIdPhoto },
+								{ label: "حجة الوصاية", value: c.guardianshipCertificate },
+								{ label: "شهادة الوفاة", value: c.deathCertificate },
+							].map((doc, i) => {
+								if (!doc.value) return null;
+								if (doc.value.startsWith("data:image")) {
+									return (
+										<ImagePreviewButton
+											key={i}
+											src={doc.value}
+											title={`عرض ${doc.label}`}
+											className="px-0 text-xs"
+										/>
+									);
+								}
+								return (
+									<a
+										key={i}
+										href={doc.value}
+										target="_blank"
+										rel="noreferrer"
+										className="text-primary text-xs underline"
+									>
+										عرض {doc.label}
+									</a>
+								);
+							})}
+						</div>
 					</CardContent>
 				</Card>
 

@@ -26,6 +26,9 @@ type ExportChild = {
 	fatherDeathCause?: string | null;
 	siblingsCount?: number | null;
 	guardianName?: string | null;
+	guardianRelation?: string | null;
+	phone?: string | null;
+	guardianAccount?: string | null;
 	notes?: string | null;
 };
 
@@ -246,6 +249,13 @@ export function ChildCvExport({
 									value={child.siblingsCount}
 								/>
 								<LineField label="الوصي الشرعي" value={child.guardianName} />
+								<LineField label="صلة القرابة" value={child.guardianRelation} />
+								<LineField label="رقم الهاتف" value={child.phone} />
+								<LineField
+									label="حساب البنك / المحفظة"
+									value={child.guardianAccount}
+									className="col-span-2"
+								/>
 							</div>
 						</section>
 

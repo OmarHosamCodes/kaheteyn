@@ -120,14 +120,9 @@ function ReportsPage() {
 				title="التقارير الشهرية"
 				subtitle={monthLabelFromKey(monthKey)}
 				actions={
-					<>
-						<Button variant="outline" size="sm" onClick={() => window.print()}>
-							<PrinterIcon className="ms-1 size-4" /> طباعة / PDF
-						</Button>
-						<Button variant="outline" size="sm" onClick={exportPDF}>
-							<DownloadIcon className="ms-1 size-4" /> تصدير PDF
-						</Button>
-					</>
+					<Button variant="outline" size="sm" onClick={exportPDF}>
+						<DownloadIcon className="ms-1 size-4" /> تصدير PDF
+					</Button>
 				}
 			/>
 
