@@ -1,15 +1,12 @@
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { jsPDF } from "jspdf";
+import { toast } from "sonner";
 
+import arabicBoldFont from "@/assets/fonts/IBMPlexSansArabic-Bold.ttf?url";
+import arabicRegularFont from "@/assets/fonts/IBMPlexSansArabic-Regular.ttf?url";
 import { formatDate } from "@/lib/format";
 
-type ChildCvExportProps = {
-	child: ExportChild;
-	sponsor: ExportSponsor;
-	payments: ExportPayment[];
-};
-
 type ExportChild = {
+	id?: string | null;
 	fullName: string;
 	sponsorshipStatus?: string | null;
 	createdAt?: Date | string | number | null;
@@ -44,7 +41,73 @@ type ExportPayment = {
 	dateSent?: Date | string | number | null;
 };
 
+type Field = {
+	label: string;
+	value: string | number | null | undefined;
+	wide?: boolean;
+};
+
+type Rgb = [number, number, number];
+
 const EMPTY_VALUE = "";
+const FONT_FAMILY = "IBMPlexSansArabic";
+const LOGO_URL = "/logo.png";
+
+const colors = {
+	ink: [33, 33, 33] as Rgb,
+	muted: [101, 101, 101] as Rgb,
+	stone: [214, 214, 214] as Rgb,
+	mist: [246, 247, 246] as Rgb,
+	olive: [31, 150, 73] as Rgb,
+	page: [253, 253, 252] as Rgb,
+};
+
+let fontPromise: Promise<void> | null = null;
+let logoPromise: Promise<string> | null = null;
+
+async function blobUrlToBase64(url: string) {
+	const buffer = await fetch(url).then((res) => {
+		if (!res.ok) throw new Error("Failed to load PDF asset");
+		return res.arrayBuffer();
+	});
+	let binary = "";
+	const bytes = new Uint8Array(buffer);
+	const chunkSize = 0x8000;
+	for (let i = 0; i < bytes.length; i += chunkSize) {
+		binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+	}
+	return btoa(binary);
+}
+
+async function ensureFontsLoaded() {
+	fontPromise ??= Promise.all([
+		blobUrlToBase64(arabicRegularFont),
+		blobUrlToBase64(arabicBoldFont),
+	]).then(([regular, bold]) => {
+		(jsPDF.API as unknown as Record<string, unknown>).__kaheteynChildFonts = {
+			regular,
+			bold,
+		};
+	});
+	return fontPromise;
+}
+
+async function ensureLogoLoaded() {
+	logoPromise ??= blobUrlToBase64(LOGO_URL).then(
+		(base64) => `data:image/png;base64,${base64}`,
+	);
+	return logoPromise;
+}
+
+function registerFonts(doc: jsPDF) {
+	const fonts = (jsPDF.API as unknown as Record<string, unknown>)
+		.__kaheteynChildFonts as { regular: string; bold: string } | undefined;
+	if (!fonts) return;
+	doc.addFileToVFS("IBMPlexSansArabic-Regular.ttf", fonts.regular);
+	doc.addFileToVFS("IBMPlexSansArabic-Bold.ttf", fonts.bold);
+	doc.addFont("IBMPlexSansArabic-Regular.ttf", FONT_FAMILY, "normal");
+	doc.addFont("IBMPlexSansArabic-Bold.ttf", FONT_FAMILY, "bold");
+}
 
 function formatGender(value: string | null | undefined) {
 	if (!value) return EMPTY_VALUE;
@@ -73,292 +136,372 @@ function getSponsorshipStartDate(payments: ExportPayment[]) {
 	return dates[0] ?? null;
 }
 
-const ChildPlaceholderIcon = () => (
-	<svg
-		width="104"
-		height="120"
-		viewBox="0 0 104 120"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-		aria-hidden="true"
-	>
-		<circle cx="52" cy="34" r="22" fill="currentColor" opacity="0.8" />
-		<path
-			d="M52 56C33.2223 56 17 72.2223 17 91V101H87V91C87 72.2223 70.7777 56 52 56Z"
-			fill="currentColor"
-		/>
-	</svg>
-);
+function text(value: Field["value"]) {
+	return value === null || value === undefined || value === ""
+		? "-"
+		: String(value);
+}
 
-export function ChildCvExport({
-	child,
-	sponsor,
-	payments,
-}: ChildCvExportProps) {
-	const sponsorshipStartDate = getSponsorshipStartDate(payments);
-	const monthlyAmount = payments[0]?.amountUsd ?? (sponsor ? 10_000 : null);
-	const photoCanvasRef = useRef<HTMLCanvasElement>(null);
-	const [photoReady, setPhotoReady] = useState(!child.photo);
-	const title =
-		child.sponsorshipStatus === "sponsored"
-			? "ملف يتيم مكفول"
-			: "ملف يتيم غير مكفول";
+function filenamePart(value: string) {
+	return value.trim().replace(/[\\/:*?"<>|]+/g, "-") || "child";
+}
 
-	useEffect(() => {
-		if (!child.photo) {
-			setPhotoReady(true);
-			return;
+function setFont(
+	doc: jsPDF,
+	style: "normal" | "bold",
+	size: number,
+	color: Rgb,
+) {
+	doc.setFont(FONT_FAMILY, style);
+	doc.setFontSize(size);
+	doc.setTextColor(...color);
+}
+
+function drawSectionTitle(
+	doc: jsPDF,
+	title: string,
+	x: number,
+	y: number,
+	w: number,
+) {
+	doc.setFillColor(...colors.mist);
+	doc.setDrawColor(...colors.stone);
+	doc.setLineWidth(0.2);
+	doc.rect(x, y, w, 7, "FD");
+	setFont(doc, "bold", 9, colors.ink);
+	doc.text(title, x + w - 3, y + 4.8, { align: "right" });
+}
+
+function drawField(doc: jsPDF, field: Field, x: number, y: number, w: number) {
+	doc.setDrawColor(...colors.stone);
+	doc.setLineWidth(0.2);
+	doc.rect(x, y, w, 12);
+	setFont(doc, "normal", 7, colors.muted);
+	doc.text(field.label, x + w - 3, y + 4, { align: "right" });
+	setFont(doc, "bold", 8.5, colors.ink);
+	doc.text(text(field.value), x + w - 3, y + 9, {
+		align: "right",
+		maxWidth: w - 6,
+	});
+}
+
+function drawFieldGrid(
+	doc: jsPDF,
+	title: string,
+	fields: Field[],
+	x: number,
+	y: number,
+	w: number,
+) {
+	drawSectionTitle(doc, title, x, y, w);
+	const colW = w / 2;
+	let cursorY = y + 9;
+	let col = 0;
+
+	for (const field of fields) {
+		if (field.wide) {
+			if (col === 1) {
+				cursorY += 12;
+				col = 0;
+			}
+			drawField(doc, field, x, cursorY, w);
+			cursorY += 12;
+			continue;
 		}
 
-		setPhotoReady(false);
-		let cancelled = false;
-		const image = new Image();
-		image.decoding = "async";
-		image.onload = () => {
-			if (cancelled) return;
+		const fieldX = col === 0 ? x + colW : x;
+		drawField(doc, field, fieldX, cursorY, colW);
+		col += 1;
+		if (col === 2) {
+			col = 0;
+			cursorY += 12;
+		}
+	}
 
-			const canvas = photoCanvasRef.current;
-			const context = canvas?.getContext("2d");
-			if (!canvas || !context) {
-				setPhotoReady(true);
-				return;
-			}
-
-			canvas.width = image.naturalWidth;
-			canvas.height = image.naturalHeight;
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			context.drawImage(image, 0, 0);
-			setPhotoReady(true);
-		};
-		image.onerror = () => {
-			if (!cancelled) setPhotoReady(true);
-		};
-		image.src = child.photo;
-
-		return () => {
-			cancelled = true;
-		};
-	}, [child.photo]);
-
-	return (
-		<div
-			className="pointer-events-none fixed top-0 left-0 -z-10 h-0 w-0 overflow-hidden bg-[oklch(0.992_0.006_100)] text-[oklch(0.18_0.01_155)] opacity-0 print:pointer-events-auto print:static print:z-auto print:h-auto print:w-auto print:overflow-visible print:opacity-100"
-			data-child-cv-export="true"
-			data-export-photo-ready={photoReady ? "true" : "false"}
-			dir="rtl"
-		>
-			<style>
-				{"@media print { @page { size: A4 portrait; margin: 12mm; } }"}
-			</style>
-
-			<div className="mx-auto flex min-h-[273mm] w-[186mm] flex-col text-[11px] leading-[1.65]">
-				<header className="pb-4">
-					<div className="flex items-start justify-between gap-6">
-						<div className="min-w-0 flex-1">
-							<p className="font-medium text-[10px] text-[oklch(0.48_0.026_162)]">
-								مبادرة كهاتين لكفالة أبناء شهداء غزة
-							</p>
-							<h1 className="mt-1 font-bold text-[19px] leading-tight">
-								{title}
-							</h1>
-							<p className="mt-1 text-[10px] text-[oklch(0.48_0.026_162)]">
-								تاريخ فتح الملف: {formatDate(child.createdAt)}
-							</p>
-						</div>
-
-						<img
-							src="/logo.png"
-							alt="كهاتين"
-							className="h-[18mm] w-auto shrink-0 object-contain"
-						/>
-					</div>
-
-					<div className="mt-4 border-[oklch(0.5_0.14_149)] border-t" />
-				</header>
-
-				<div className="grid grid-cols-[42mm_1fr] items-start gap-5">
-					<aside className="space-y-3">
-						<Section title="الصورة الشخصية">
-							<div className="border border-[oklch(0.875_0.016_112)] bg-[oklch(0.955_0.013_102)] p-2">
-								{child.photo ? (
-									<canvas
-										ref={photoCanvasRef}
-										aria-label={child.fullName}
-										data-export-photo="true"
-										className="h-[50mm] w-full object-cover"
-									/>
-								) : (
-									<div className="flex h-[50mm] flex-col items-center justify-center text-[oklch(0.5_0.14_149)]">
-										<ChildPlaceholderIcon />
-										<span className="mt-2 font-medium text-[14px]">طفل</span>
-									</div>
-								)}
-							</div>
-						</Section>
-
-						<Section title="ملخص الكفالة">
-							<div className="divide-y divide-[oklch(0.875_0.016_112)] border border-[oklch(0.875_0.016_112)]">
-								<StackedField label="حالة الملف" value={title} />
-								<StackedField label="الكافل" value={sponsor?.name} />
-								<StackedField
-									label="قيمة الكفالة"
-									value={formatAmount(monthlyAmount)}
-								/>
-								<StackedField
-									label="تاريخ البدء"
-									value={
-										sponsorshipStartDate
-											? formatDate(sponsorshipStartDate)
-											: EMPTY_VALUE
-									}
-								/>
-							</div>
-						</Section>
-					</aside>
-
-					<div className="min-w-0 flex-1 space-y-4">
-						<Section title="البيانات الشخصية">
-							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
-								<DataField label="الاسم الكامل" value={child.fullName} wide />
-								<DataField
-									label="تاريخ الميلاد"
-									value={formatDate(child.birthDate)}
-								/>
-								<DataField label="العمر" value={child.age} />
-								<DataField label="الجنس" value={formatGender(child.gender)} />
-								<DataField label="مكان الإقامة" value={child.residence} />
-								<DataField label="الحالة الصحية" value={child.healthStatus} />
-								<DataField label="المرحلة الدراسية" value={child.schoolStage} />
-							</dl>
-						</Section>
-
-						<Section title="البيانات العائلية">
-							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
-								<DataField label="اسم الأب" value={child.fatherName} />
-								<DataField label="اسم الأم" value={child.motherName} />
-								<DataField
-									label="تاريخ وفاة الأب"
-									value={formatDate(child.fatherDeathDate)}
-								/>
-								<DataField
-									label="سبب وفاة الأب"
-									value={child.fatherDeathCause}
-								/>
-								<DataField
-									label="عدد الإخوة والأخوات"
-									value={child.siblingsCount}
-								/>
-								<DataField label="الوصي الشرعي" value={child.guardianName} />
-								<DataField label="صلة القرابة" value={child.guardianRelation} />
-								<DataField label="رقم الهاتف" value={child.phone} />
-								<DataField
-									label="حساب البنك / المحفظة"
-									value={child.guardianAccount}
-									wide
-								/>
-							</dl>
-						</Section>
-
-						<Section title="الوضع المعيشي">
-							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
-								<DataField label="نوع السكن" value={EMPTY_VALUE} />
-								<DataField label="مصادر الدخل" value={EMPTY_VALUE} />
-								<DataField
-									label="الاحتياجات الأساسية"
-									value={EMPTY_VALUE}
-									wide
-								/>
-							</dl>
-						</Section>
-
-						<Section title="تفاصيل الكفالة">
-							<dl className="grid grid-cols-2 border border-[oklch(0.875_0.016_112)]">
-								<DataField label="اسم الكافل" value={sponsor?.name} />
-								<DataField label="بلد الكافل" value={EMPTY_VALUE} />
-								<DataField
-									label="قيمة الكفالة الشهرية"
-									value={formatAmount(monthlyAmount)}
-								/>
-								<DataField
-									label="مدة الكفالة"
-									value={sponsor ? "مفتوحة" : EMPTY_VALUE}
-								/>
-								<DataField
-									label="تاريخ بدء الكفالة"
-									value={
-										sponsorshipStartDate
-											? formatDate(sponsorshipStartDate)
-											: EMPTY_VALUE
-									}
-									wide
-								/>
-							</dl>
-						</Section>
-
-						<Section title="ملاحظات إضافية">
-							<div className="min-h-[24mm] whitespace-pre-wrap border border-[oklch(0.875_0.016_112)] px-3 py-2 text-[12px] leading-[1.8]">
-								{child.notes ?? EMPTY_VALUE}
-							</div>
-						</Section>
-					</div>
-				</div>
-
-				<footer className="mt-auto pt-6 text-[9px] text-[oklch(0.48_0.026_162)]">
-					<div className="border-[oklch(0.875_0.016_112)] border-t pt-2">
-						<div className="flex items-center justify-between gap-4">
-							<span>صفحة ١</span>
-							<span>تم إنشاؤه من نظام كهاتين</span>
-						</div>
-					</div>
-				</footer>
-			</div>
-		</div>
-	);
+	return cursorY + (col === 0 ? 4 : 16);
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-	return (
-		<section>
-			<h2 className="border border-[oklch(0.875_0.016_112)] bg-[oklch(0.955_0.013_102)] px-2 py-1 font-bold text-[11px] leading-tight">
-				{title}
-			</h2>
-			<div className="mt-2">{children}</div>
-		</section>
-	);
+async function loadImage(src: string) {
+	const image = new Image();
+	image.decoding = "async";
+	image.crossOrigin = "anonymous";
+	image.src = src.startsWith("data:image/") ? src : await imageToDataUrl(src);
+	await image.decode();
+	return image;
 }
 
-function DataField({
-	label,
-	value,
-	wide = false,
-}: {
-	label: string;
-	value: ReactNode;
-	wide?: boolean;
-}) {
-	return (
-		<div
-			className={`min-h-[10mm] border-[oklch(0.875_0.016_112)] border-b px-2 py-1.5 even:border-r ${wide ? "col-span-2" : ""}`}
-		>
-			<dt className="font-medium text-[9px] text-[oklch(0.48_0.026_162)] leading-tight">
-				{label}
-			</dt>
-			<dd className="mt-0.5 min-h-[14px] font-semibold text-[11.5px] leading-snug">
-				{value ?? EMPTY_VALUE}
-			</dd>
-		</div>
-	);
+async function imageToDataUrl(src: string) {
+	const base64 = await blobUrlToBase64(src);
+	return `data:image/png;base64,${base64}`;
 }
 
-function StackedField({ label, value }: { label: string; value: ReactNode }) {
-	return (
-		<div className="px-2 py-1.5">
-			<p className="font-medium text-[9px] text-[oklch(0.48_0.026_162)] leading-tight">
-				{label}
-			</p>
-			<p className="mt-0.5 min-h-[14px] font-semibold text-[11px] leading-snug">
-				{value ?? EMPTY_VALUE}
-			</p>
-		</div>
+async function imageToPdfThumbnail(src: string) {
+	const image = await loadImage(src);
+	const canvas = document.createElement("canvas");
+	const targetWidth = 320;
+	const scale = Math.min(1, targetWidth / image.naturalWidth);
+	canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+	canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+	const context = canvas.getContext("2d", { alpha: false });
+	if (!context) throw new Error("Could not prepare child photo");
+	context.fillStyle = "#f6f7f6";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.drawImage(image, 0, 0, canvas.width, canvas.height);
+	return canvas.toDataURL("image/jpeg", 0.78);
+}
+
+async function drawPhoto(
+	doc: jsPDF,
+	child: ExportChild,
+	x: number,
+	y: number,
+	w: number,
+) {
+	drawSectionTitle(doc, "الصورة الشخصية", x, y, w);
+	doc.setFillColor(...colors.mist);
+	doc.setDrawColor(...colors.stone);
+	doc.setLineWidth(0.2);
+	doc.rect(x, y + 9, w, 55, "FD");
+
+	if (child.photo) {
+		try {
+			const dataUrl = await imageToPdfThumbnail(child.photo);
+			doc.addImage(
+				dataUrl,
+				"JPEG",
+				x + 2,
+				y + 11,
+				w - 4,
+				51,
+				undefined,
+				"FAST",
+			);
+			return;
+		} catch {
+			// Fall through to the printed placeholder if the browser cannot decode it.
+		}
+	}
+
+	doc.setDrawColor(...colors.olive);
+	doc.setLineWidth(0.3);
+	doc.circle(x + w / 2, y + 27, 8, "S");
+	doc.roundedRect(x + w / 2 - 14, y + 38, 28, 16, 2, 2, "S");
+	setFont(doc, "bold", 11, colors.olive);
+	doc.text("طفل", x + w / 2, y + 59, { align: "center" });
+}
+
+function drawStackedField(
+	doc: jsPDF,
+	field: Field,
+	x: number,
+	y: number,
+	w: number,
+) {
+	doc.setDrawColor(...colors.stone);
+	doc.setLineWidth(0.2);
+	doc.rect(x, y, w, 13);
+	setFont(doc, "normal", 7, colors.muted);
+	doc.text(field.label, x + w - 3, y + 4, { align: "right" });
+	setFont(doc, "bold", 8, colors.ink);
+	doc.text(text(field.value), x + w - 3, y + 9.3, {
+		align: "right",
+		maxWidth: w - 6,
+	});
+}
+
+function drawSummary(
+	doc: jsPDF,
+	fields: Field[],
+	x: number,
+	y: number,
+	w: number,
+) {
+	drawSectionTitle(doc, "ملخص الكفالة", x, y, w);
+	let cursorY = y + 9;
+	for (const field of fields) {
+		drawStackedField(doc, field, x, cursorY, w);
+		cursorY += 13;
+	}
+	return cursorY;
+}
+
+function drawHeader(
+	doc: jsPDF,
+	title: string,
+	child: ExportChild,
+	logoDataUrl: string,
+) {
+	const pageWidth = doc.internal.pageSize.getWidth();
+	doc.setFillColor(...colors.page);
+	doc.rect(0, 0, pageWidth, 30, "F");
+	doc.addImage(logoDataUrl, "PNG", 14, 5, 44, 19);
+
+	setFont(doc, "bold", 15, colors.ink);
+	doc.text(title, pageWidth - 14, 13, { align: "right" });
+	setFont(doc, "normal", 8.5, colors.muted);
+	doc.text("مبادرة كهاتين لكفالة أبناء شهداء غزة", pageWidth - 14, 20, {
+		align: "right",
+	});
+	doc.text(
+		`تاريخ فتح الملف: ${formatDate(child.createdAt)}`,
+		pageWidth - 14,
+		25,
+		{
+			align: "right",
+		},
 	);
+
+	doc.setDrawColor(...colors.olive);
+	doc.setLineWidth(0.7);
+	doc.line(14, 30, pageWidth - 14, 30);
+}
+
+function drawFooter(doc: jsPDF) {
+	const pageWidth = doc.internal.pageSize.getWidth();
+	const pageHeight = doc.internal.pageSize.getHeight();
+	doc.setDrawColor(...colors.stone);
+	doc.setLineWidth(0.2);
+	doc.line(14, pageHeight - 14, pageWidth - 14, pageHeight - 14);
+	setFont(doc, "normal", 8, colors.muted);
+	doc.text("صفحة 1", pageWidth - 14, pageHeight - 8, { align: "right" });
+	doc.text("Generated by Kaheteyn", 14, pageHeight - 8, { align: "left" });
+}
+
+export async function downloadChildCvPDF(
+	child: ExportChild,
+	sponsor: ExportSponsor,
+	payments: ExportPayment[],
+) {
+	try {
+		await ensureFontsLoaded();
+		const logoDataUrl = await ensureLogoLoaded();
+		const sponsorshipStartDate = getSponsorshipStartDate(payments);
+		const monthlyAmount = payments[0]?.amountUsd ?? (sponsor ? 10_000 : null);
+		const title =
+			child.sponsorshipStatus === "sponsored"
+				? "ملف يتيم مكفول"
+				: "ملف يتيم غير مكفول";
+
+		const doc = new jsPDF({
+			orientation: "portrait",
+			unit: "mm",
+			format: "a4",
+		});
+		registerFonts(doc);
+		doc.setLanguage("ar");
+		doc.setR2L(false);
+		doc.setFillColor(...colors.page);
+		doc.rect(0, 0, 210, 297, "F");
+
+		drawHeader(doc, title, child, logoDataUrl);
+		await drawPhoto(doc, child, 14, 39, 42);
+		drawSummary(
+			doc,
+			[
+				{ label: "حالة الملف", value: title },
+				{ label: "الكافل", value: sponsor?.name },
+				{ label: "قيمة الكفالة", value: formatAmount(monthlyAmount) },
+				{
+					label: "تاريخ البدء",
+					value: sponsorshipStartDate
+						? formatDate(sponsorshipStartDate)
+						: EMPTY_VALUE,
+				},
+			],
+			14,
+			108,
+			42,
+		);
+
+		let y = 39;
+		y = drawFieldGrid(
+			doc,
+			"البيانات الشخصية",
+			[
+				{ label: "الاسم الكامل", value: child.fullName, wide: true },
+				{ label: "تاريخ الميلاد", value: formatDate(child.birthDate) },
+				{ label: "العمر", value: child.age },
+				{ label: "الجنس", value: formatGender(child.gender) },
+				{ label: "مكان الإقامة", value: child.residence },
+				{ label: "الحالة الصحية", value: child.healthStatus },
+				{ label: "المرحلة الدراسية", value: child.schoolStage },
+			],
+			61,
+			y,
+			135,
+		);
+
+		y = drawFieldGrid(
+			doc,
+			"البيانات العائلية",
+			[
+				{ label: "اسم الأب", value: child.fatherName },
+				{ label: "اسم الأم", value: child.motherName },
+				{ label: "تاريخ وفاة الأب", value: formatDate(child.fatherDeathDate) },
+				{ label: "سبب وفاة الأب", value: child.fatherDeathCause },
+				{ label: "عدد الإخوة والأخوات", value: child.siblingsCount },
+				{ label: "الوصي الشرعي", value: child.guardianName },
+				{ label: "صلة القرابة", value: child.guardianRelation },
+				{ label: "رقم الهاتف", value: child.phone },
+				{
+					label: "حساب البنك / المحفظة",
+					value: child.guardianAccount,
+					wide: true,
+				},
+			],
+			61,
+			y,
+			135,
+		);
+
+		y = drawFieldGrid(
+			doc,
+			"الوضع المعيشي",
+			[
+				{ label: "نوع السكن", value: EMPTY_VALUE },
+				{ label: "مصادر الدخل", value: EMPTY_VALUE },
+				{ label: "الاحتياجات الأساسية", value: EMPTY_VALUE, wide: true },
+			],
+			61,
+			y,
+			135,
+		);
+
+		y = drawFieldGrid(
+			doc,
+			"تفاصيل الكفالة",
+			[
+				{ label: "اسم الكافل", value: sponsor?.name },
+				{ label: "بلد الكافل", value: EMPTY_VALUE },
+				{ label: "قيمة الكفالة الشهرية", value: formatAmount(monthlyAmount) },
+				{ label: "مدة الكفالة", value: sponsor ? "مفتوحة" : EMPTY_VALUE },
+				{
+					label: "تاريخ بدء الكفالة",
+					value: sponsorshipStartDate
+						? formatDate(sponsorshipStartDate)
+						: EMPTY_VALUE,
+					wide: true,
+				},
+			],
+			61,
+			y,
+			135,
+		);
+
+		drawSectionTitle(doc, "ملاحظات إضافية", 61, y, 135);
+		doc.setDrawColor(...colors.stone);
+		doc.rect(61, y + 9, 135, 24);
+		setFont(doc, "normal", 8.5, colors.ink);
+		doc.text(text(child.notes), 193, y + 15, {
+			align: "right",
+			maxWidth: 129,
+		});
+
+		drawFooter(doc);
+		doc.save(`${filenamePart(child.fullName)}.pdf`);
+		toast.success("تم تصدير ملف PDF");
+	} catch (error) {
+		console.error(error);
+		toast.error("تعذر تصدير ملف PDF");
+	}
 }

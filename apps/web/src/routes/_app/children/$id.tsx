@@ -18,13 +18,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
 	ArrowRightIcon,
-	PrinterIcon,
+	DownloadIcon,
 	Trash2Icon,
 	UserCircleIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { ChildCvExport } from "@/components/child-cv-export";
+import { downloadChildCvPDF } from "@/components/child-cv-export";
 import { useConfirm } from "@/components/confirm";
 import {
 	ImagePreviewButton,
@@ -89,19 +89,8 @@ function ChildDetail() {
 		.filter((p) => p.financialStatus === "confirmed")
 		.reduce((acc, p) => acc + p.amountUsd, 0);
 
-	async function handlePrint() {
-		const exportNode = document.querySelector<HTMLElement>(
-			'[data-child-cv-export="true"]',
-		);
-
-		if (c.photo && exportNode) {
-			for (let attempt = 0; attempt < 60; attempt += 1) {
-				if (exportNode.dataset.exportPhotoReady === "true") break;
-				await new Promise<void>((resolve) => window.setTimeout(resolve, 50));
-			}
-		}
-
-		window.print();
+	async function handleExportPdf() {
+		await downloadChildCvPDF(c, sponsor, payments);
 	}
 
 	return (
@@ -121,8 +110,8 @@ function ChildDetail() {
 					subtitle={`${c.id}${c.residence ? ` — ${c.residence}` : ""}`}
 					actions={
 						<>
-							<Button variant="outline" size="sm" onClick={handlePrint}>
-								<PrinterIcon className="ms-1 size-4" /> طباعة / PDF
+							<Button variant="outline" size="sm" onClick={handleExportPdf}>
+								<DownloadIcon className="ms-1 size-4" /> تصدير PDF
 							</Button>
 							<Button
 								variant="outline"
@@ -176,12 +165,12 @@ function ChildDetail() {
 								{ label: "هوية الوصي", value: c.guardianIdPhoto },
 								{ label: "حجة الوصاية", value: c.guardianshipCertificate },
 								{ label: "شهادة الوفاة", value: c.deathCertificate },
-							].map((doc, i) => {
+							].map((doc) => {
 								if (!doc.value) return null;
 								if (doc.value.startsWith("data:image")) {
 									return (
 										<ImagePreviewButton
-											key={i}
+											key={doc.label}
 											src={doc.value}
 											title={`عرض ${doc.label}`}
 											className="px-0 text-xs"
@@ -190,7 +179,7 @@ function ChildDetail() {
 								}
 								return (
 									<a
-										key={i}
+										key={doc.label}
 										href={doc.value}
 										target="_blank"
 										rel="noreferrer"
@@ -255,8 +244,6 @@ function ChildDetail() {
 					</CardContent>
 				</Card>
 			</div>
-
-			<ChildCvExport child={c} sponsor={sponsor} payments={payments} />
 
 			<Card className="no-print">
 				<CardHeader>
