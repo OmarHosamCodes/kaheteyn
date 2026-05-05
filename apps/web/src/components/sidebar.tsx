@@ -37,12 +37,15 @@ export function Sidebar({ userName }: { userName?: string | null }) {
 	}
 
 	return (
-		<aside className="sidebar no-print sticky top-0 flex h-screen w-64 shrink-0 flex-col border-s bg-sidebar text-sidebar-foreground">
-			<div className="flex items-center justify-between border-b p-4">
+		<aside className="sidebar no-print sticky top-0 flex h-screen w-64 shrink-0 flex-col border-s bg-sidebar text-sidebar-foreground shadow-[1px_0_0_oklch(0.18_0.01_155_/_0.04)]">
+			<div className="border-b p-4">
 				<Logo />
+				<p className="mt-3 max-w-44 text-sidebar-foreground/60 text-xs leading-5">
+					سجل الكفالات والدفعات والإقرارات
+				</p>
 			</div>
-			<nav className="flex-1 overflow-y-auto p-2">
-				<ul className="space-y-1">
+			<nav className="flex-1 overflow-y-auto p-3">
+				<ul className="flex flex-col gap-1.5">
 					{items.map((it) => {
 						const Icon = it.icon;
 						const active =
@@ -52,10 +55,10 @@ export function Sidebar({ userName }: { userName?: string | null }) {
 							<li key={it.to}>
 								<Link
 									to={it.to}
-									className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-150 ${
+									className={`flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm transition-all duration-150 ${
 										active
-											? "bg-sidebar-primary text-sidebar-primary-foreground"
-											: "hover:bg-primary/5 hover:text-foreground"
+											? "bg-sidebar-primary text-sidebar-primary-foreground shadow-[inset_0_0_0_1px_oklch(1_0_0_/_0.16)]"
+											: "text-sidebar-foreground/74 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
 									}`}
 								>
 									<Icon className="size-4 shrink-0" />
@@ -66,17 +69,17 @@ export function Sidebar({ userName }: { userName?: string | null }) {
 					})}
 				</ul>
 			</nav>
-			<div className="space-y-2 border-t p-3">
-				<div className="flex items-center gap-2 text-muted-foreground text-xs">
+			<div className="border-t bg-background/28 p-3">
+				<div className="mb-3 flex items-center gap-2 text-sidebar-foreground/55 text-xs">
 					<AlertCircleIcon className="size-3" />
-					<span className="text-primary/40">إصدار 1.0</span>
+					<span>إصدار 1.0</span>
 				</div>
 				<div className="flex items-center justify-between">
-					<span className="text-sm">{userName ?? "المدير"}</span>
+					<span className="font-semibold text-sm">{userName ?? "المدير"}</span>
 					<button
 						type="button"
 						onClick={signOut}
-						className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-muted-foreground text-xs hover:bg-muted hover:text-destructive"
+						className="inline-flex h-8 items-center gap-1 rounded-sm px-2 text-sidebar-foreground/62 text-xs hover:bg-background/45 hover:text-destructive"
 						title="تسجيل خروج"
 					>
 						<LogOutIcon className="size-3" />

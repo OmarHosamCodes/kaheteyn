@@ -194,7 +194,7 @@ function ChildrenPage() {
 	}
 
 	return (
-		<div className="space-y-6">
+		<div className="flex flex-col gap-6">
 			<PageHeader
 				title="الأطفال"
 				subtitle="إدارة سجلات الأطفال المكفولين وغير المكفولين"
@@ -210,8 +210,8 @@ function ChildrenPage() {
 				}
 			/>
 
-			<Card>
-				<CardContent className="pt-6 pb-4">
+			<Card className="bg-card/78">
+				<CardContent className="pt-4 pb-4">
 					<div className="grid gap-3 md:grid-cols-4">
 						<div className="md:col-span-2">
 							<div className="relative">
@@ -273,12 +273,16 @@ function ChildrenPage() {
 					{(list.data ?? []).map((c) => (
 						<Card
 							key={c.id}
-							className={`overflow-hidden border-t-2 ${c.sponsorshipStatus === "sponsored" ? "border-t-emerald-500" : "border-t-amber-500"}`}
+							className={
+								c.sponsorshipStatus === "sponsored"
+									? "overflow-hidden bg-[linear-gradient(135deg,oklch(0.992_0.006_100),oklch(0.958_0.026_145))]"
+									: "overflow-hidden bg-[linear-gradient(135deg,oklch(0.992_0.006_100),oklch(0.962_0.032_73))]"
+							}
 						>
 							<Link
 								to="/children/$id"
 								params={{ id: c.id }}
-								className="block hover:bg-muted/30"
+								className="block hover:bg-card/42"
 							>
 								<CardContent className="pt-4 pb-3">
 									<div className="flex items-center gap-3">
@@ -286,11 +290,11 @@ function ChildrenPage() {
 											<img
 												src={c.photo}
 												alt=""
-												className="h-14 w-14 rounded-full border object-cover"
+												className="size-14 rounded-sm border object-cover"
 											/>
 										) : (
 											<div
-												className={`grid h-14 w-14 place-items-center rounded-full bg-muted ${c.sponsorshipStatus !== "sponsored" ? "ring-2 ring-amber-500/30" : ""}`}
+												className={`grid size-14 place-items-center rounded-sm bg-card/72 ${c.sponsorshipStatus !== "sponsored" ? "ring-2 ring-[oklch(0.68_0.15_73_/_0.3)]" : ""}`}
 											>
 												<UserCircleIcon className="size-7 text-muted-foreground" />
 											</div>
@@ -321,10 +325,10 @@ function ChildrenPage() {
 									</dl>
 								</CardContent>
 							</Link>
-							<div className="flex border-t bg-muted/20 text-xs">
+							<div className="flex border-t bg-card/56 text-xs">
 								<button
 									type="button"
-									className="flex-1 py-2 hover:bg-muted/40"
+									className="flex-1 py-2 font-semibold hover:bg-accent/35"
 									onClick={() => setEditing(c as ChildRow)}
 								>
 									تعديل
@@ -332,7 +336,7 @@ function ChildrenPage() {
 								<span className="w-px bg-border" />
 								<button
 									type="button"
-									className="flex-1 py-2 text-destructive hover:bg-destructive/10"
+									className="flex-1 py-2 font-semibold text-destructive hover:bg-destructive/10"
 									onClick={async () => {
 										const ok = await confirm({
 											title: "حذف الطفل؟",

@@ -3,10 +3,10 @@ import * as React from "react";
 
 const Table = React.forwardRef<HTMLTableElement, React.ComponentProps<"table">>(
 	({ className, ...props }, ref) => (
-		<div className="relative w-full overflow-auto">
+		<div className="relative w-full overflow-auto rounded-sm border">
 			<table
 				ref={ref}
-				className={cn("w-full caption-bottom text-sm", className)}
+				className={cn("w-full caption-bottom bg-card text-sm", className)}
 				{...props}
 			/>
 		</div>
@@ -18,21 +18,21 @@ const TableHeader = ({
 	className,
 	...props
 }: React.ComponentProps<"thead">) => (
-	<thead className={cn("bg-muted/40 [&_tr]:border-b", className)} {...props} />
+	<thead className={cn("bg-accent/55 [&_tr]:border-b", className)} {...props} />
 );
 const TableBody = ({ className, ...props }: React.ComponentProps<"tbody">) => (
 	<tbody className={cn("[&_tr:last-child]:border-0", className)} {...props} />
 );
 const TableRow = ({ className, ...props }: React.ComponentProps<"tr">) => (
 	<tr
-		className={cn("border-b transition-colors hover:bg-muted/50", className)}
+		className={cn("border-b transition-colors hover:bg-accent/35", className)}
 		{...props}
 	/>
 );
 const TableHead = ({ className, ...props }: React.ComponentProps<"th">) => (
 	<th
 		className={cn(
-			"h-10 px-3 text-start align-middle font-medium text-muted-foreground",
+			"h-10 px-3 text-start align-middle font-bold text-accent-foreground/80 text-xs",
 			className,
 		)}
 		{...props}

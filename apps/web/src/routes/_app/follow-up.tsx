@@ -38,7 +38,7 @@ function FollowUpPage() {
 	} = q.data;
 
 	return (
-		<div className="space-y-6">
+		<div className="flex flex-col gap-6">
 			<PageHeader title="المتابعة" subtitle="ملخّص لكل ما يحتاج اهتمام" />
 
 			<div className="grid gap-4 lg:grid-cols-2">
@@ -47,7 +47,7 @@ function FollowUpPage() {
 					icon={<UserPlusIcon className="size-5 text-amber-600" />}
 					count={unsponsored.length}
 					empty="كل الأطفال مكفولون."
-					tint="bg-amber-500/[0.03]"
+					tint="bg-[linear-gradient(135deg,oklch(0.992_0.006_100),oklch(0.965_0.032_73))]"
 				>
 					{unsponsored.map((c) => (
 						<RowItem
@@ -70,7 +70,7 @@ function FollowUpPage() {
 					icon={<CalendarOffIcon className="size-5 text-red-600" />}
 					count={noPaymentThisMonth.length}
 					empty="كل المكفولين تلقّوا دفعة هذا الشهر."
-					tint="bg-red-500/[0.03]"
+					tint="bg-[linear-gradient(135deg,oklch(0.992_0.006_100),oklch(0.962_0.024_27))]"
 				>
 					{noPaymentThisMonth.map((c) => (
 						<RowItem
@@ -89,7 +89,7 @@ function FollowUpPage() {
 					icon={<FileWarningIcon className="size-5 text-orange-600" />}
 					count={paymentsWithoutReceipts.length}
 					empty="كل الدفعات لها إقرارات."
-					tint="bg-orange-500/[0.03]"
+					tint="bg-[linear-gradient(135deg,oklch(0.992_0.006_100),oklch(0.965_0.03_58))]"
 				>
 					{paymentsWithoutReceipts.map((p) => (
 						<RowItem
@@ -107,7 +107,7 @@ function FollowUpPage() {
 					icon={<AlertCircleIcon className="size-5 text-blue-600" />}
 					count={incompleteProfiles.length}
 					empty="كل الملفات مكتملة."
-					tint="bg-sky-500/[0.03]"
+					tint="bg-[linear-gradient(135deg,oklch(0.992_0.006_100),oklch(0.955_0.026_205))]"
 				>
 					{incompleteProfiles.map((c) => {
 						const missing: string[] = [];
@@ -163,7 +163,9 @@ function Section({
 				{count === 0 ? (
 					<p className="text-muted-foreground text-sm">{empty}</p>
 				) : (
-					<div className="max-h-80 divide-y overflow-auto">{children}</div>
+					<div className="max-h-80 divide-y overflow-auto rounded-sm border bg-card/58">
+						{children}
+					</div>
 				)}
 			</CardContent>
 		</Card>
@@ -187,7 +189,7 @@ function RowItem({
 		<Link
 			to={to}
 			params={params as never}
-			className="flex items-center justify-between gap-3 rounded-md px-2 py-2.5 hover:bg-muted/50"
+			className="flex items-center justify-between gap-3 px-3 py-2.5 hover:bg-accent/35"
 		>
 			<div className="min-w-0">
 				<p className="truncate font-medium">{primary}</p>

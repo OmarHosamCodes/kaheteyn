@@ -45,13 +45,15 @@ export function PageHeader({
 	actions?: React.ReactNode;
 }) {
 	return (
-		<div className="flex flex-wrap items-start justify-between gap-4">
+		<div className="flex flex-wrap items-start justify-between gap-4 rounded-sm border bg-card/72 px-4 py-3 shadow-[0_1px_0_oklch(0.18_0.01_155_/_0.04)]">
 			<div>
-				<h1 className="font-bold text-2xl">{title}</h1>
+				<h1 className="font-black text-2xl tracking-tight">{title}</h1>
 				{subtitle ? (
-					<p className="mt-1 text-muted-foreground text-sm">{subtitle}</p>
+					<p className="mt-1 text-muted-foreground text-sm leading-6">
+						{subtitle}
+					</p>
 				) : null}
-				<p className="mt-2 text-muted-foreground text-sm italic">
+				<p className="mt-2 max-w-3xl text-muted-foreground text-xs leading-6">
 					يَا قَوْمِ ادْخُلُوا الأَرْضَ المُقَدَّسَةَ الَّتِي كَتَبَ اللّهُ لَكُمْ وَلاَ تَرْتَدُّوا عَلَى أَدْبَارِكُمْ
 					فَتَنقَلِبُوا خَاسِرِينَ
 				</p>
@@ -75,9 +77,9 @@ export function EmptyState({
 	action?: React.ReactNode;
 }) {
 	return (
-		<div className="fade-in zoom-in-95 animate-in rounded-lg border border-dashed py-12 text-center duration-200">
+		<div className="fade-in zoom-in-95 animate-in rounded-sm border border-dashed bg-card/58 py-12 text-center duration-200">
 			{icon ? (
-				<div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
+				<div className="mx-auto mb-3 grid size-12 place-items-center rounded-sm bg-accent text-accent-foreground">
 					{icon}
 				</div>
 			) : null}

@@ -17,7 +17,7 @@ import {
 } from "@kaheteyn/ui/components/table";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { DownloadIcon, PrinterIcon } from "lucide-react";
+import { DownloadIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PageHeader } from "@/components/page";
@@ -115,7 +115,7 @@ function ReportsPage() {
 	};
 
 	return (
-		<div className="space-y-6">
+		<div className="flex flex-col gap-6">
 			<PageHeader
 				title="التقارير الشهرية"
 				subtitle={monthLabelFromKey(monthKey)}
@@ -126,8 +126,11 @@ function ReportsPage() {
 				}
 			/>
 
-			<Card className="no-print">
-				<CardContent className="grid gap-3 pt-6 md:grid-cols-3">
+			<Card className="no-print bg-card/78">
+				<CardHeader>
+					<CardTitle>تصفية التقرير</CardTitle>
+				</CardHeader>
+				<CardContent className="grid gap-3 md:grid-cols-3">
 					<Select
 						value={monthKey}
 						onChange={(e) => setMonthKey(e.target.value)}
@@ -162,7 +165,7 @@ function ReportsPage() {
 			</Card>
 
 			<div className="print-header hidden print:block">
-				<div className="mb-4 h-1 w-full rounded-full bg-primary" />
+				<div className="mb-4 h-1 w-full rounded-sm bg-primary" />
 				<h1 className="font-bold text-xl">
 					تقرير شهر {monthLabelFromKey(monthKey)}
 				</h1>
@@ -171,7 +174,7 @@ function ReportsPage() {
 						الكفيل: {sponsors.find((s) => s.id === sponsorId)?.name}
 					</p>
 				)}
-				<hr className="my-2" />
+				<div className="my-2 border-t" />
 			</div>
 
 			{reportQ.isLoading ? (
@@ -272,10 +275,10 @@ function ReportsPage() {
 
 function KPI({ label, value }: { label: string; value: string }) {
 	return (
-		<Card>
-			<CardContent className="pt-6">
+		<Card className="bg-card/82">
+			<CardContent className="pt-4">
 				<p className="text-muted-foreground text-xs">{label}</p>
-				<p className="mt-1 font-bold text-2xl">{value}</p>
+				<p className="mt-1 font-black text-2xl tracking-tight">{value}</p>
 			</CardContent>
 		</Card>
 	);

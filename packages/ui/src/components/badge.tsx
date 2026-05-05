@@ -10,14 +10,15 @@ type Variant =
 	| "outline";
 
 const styles: Record<Variant, string> = {
-	default: "bg-secondary text-secondary-foreground",
+	default: "border-secondary bg-secondary text-secondary-foreground",
 	success:
-		"bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+		"border-[color:oklch(0.54_0.14_149_/_0.28)] bg-[oklch(0.54_0.14_149_/_0.13)] text-[oklch(0.34_0.1_149)] dark:text-[oklch(0.82_0.1_149)]",
 	warning:
-		"bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
-	destructive: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30",
-	info: "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30",
-	outline: "border bg-transparent",
+		"border-[color:oklch(0.68_0.15_73_/_0.32)] bg-[oklch(0.68_0.15_73_/_0.15)] text-[oklch(0.42_0.1_73)] dark:text-[oklch(0.86_0.1_73)]",
+	destructive:
+		"border-[color:oklch(0.56_0.21_27_/_0.3)] bg-[oklch(0.56_0.21_27_/_0.12)] text-[oklch(0.42_0.17_27)] dark:text-[oklch(0.82_0.12_27)]",
+	info: "border-[color:oklch(0.56_0.11_205_/_0.3)] bg-[oklch(0.56_0.11_205_/_0.13)] text-[oklch(0.36_0.085_205)] dark:text-[oklch(0.82_0.08_205)]",
+	outline: "border-border bg-card text-muted-foreground",
 };
 
 export function Badge({
@@ -28,7 +29,7 @@ export function Badge({
 	return (
 		<span
 			className={cn(
-				"inline-flex items-center gap-1 rounded-full border border-transparent px-2 py-0.5 font-medium text-xs",
+				"inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-semibold text-xs",
 				styles[variant],
 				className,
 			)}
