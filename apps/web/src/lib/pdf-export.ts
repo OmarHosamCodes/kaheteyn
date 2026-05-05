@@ -78,10 +78,10 @@ function registerFonts(doc: jsPDF) {
 	registeredDocs.add(doc);
 }
 
-function rtl(doc: jsPDF, value: PdfCell) {
+function rtl(value: PdfCell) {
 	const text =
 		value === null || value === undefined || value === "" ? "-" : String(value);
-	return doc.processArabic(text);
+	return text;
 }
 
 function ltr(value: PdfCell) {
@@ -105,14 +105,14 @@ function drawHeader(doc: jsPDF, options: PdfExportOptions<unknown>) {
 	doc.setFont(FONT_FAMILY, "bold");
 	doc.setFontSize(15);
 	doc.setTextColor(...colors.ink);
-	doc.text(rtl(doc, options.title), pageWidth - 14, 14, { align: "right" });
+	doc.text(rtl(options.title), pageWidth - 14, 14, { align: "right" });
 
 	doc.setFont(FONT_FAMILY, "normal");
 	doc.setFontSize(9);
 	doc.setTextColor(...colors.muted);
-	doc.text(rtl(doc, ORGANIZATION_NAME), 14, 12, { align: "left" });
+	doc.text(rtl(ORGANIZATION_NAME), 14, 12, { align: "left" });
 	if (options.subtitle) {
-		doc.text(rtl(doc, options.subtitle), pageWidth - 14, 22, {
+		doc.text(rtl(options.subtitle), pageWidth - 14, 22, {
 			align: "right",
 		});
 	}
@@ -128,7 +128,7 @@ function drawFooter(doc: jsPDF) {
 	doc.setFont(FONT_FAMILY, "normal");
 	doc.setFontSize(8);
 	doc.setTextColor(...colors.muted);
-	doc.text(rtl(doc, `صفحة ${pageNumber}`), pageWidth - 14, pageHeight - 8, {
+	doc.text(rtl(`صفحة ${pageNumber}`), pageWidth - 14, pageHeight - 8, {
 		align: "right",
 	});
 	doc.text(
@@ -156,17 +156,17 @@ export async function downloadPDF<T>(options: PdfExportOptions<T>) {
 		});
 		registerFonts(doc);
 		doc.setLanguage("ar");
-		doc.setR2L(true);
+		doc.setR2L(false);
 
 		const columns = [...options.columns].reverse();
-		const head = [columns.map((column) => rtl(doc, column.label))];
+		const head = [columns.map((column) => rtl(column.label))];
 		const body = options.rows.map((row) =>
 			columns.map((column) => ltr(column.getValue(row))),
 		);
 		const summary =
 			options.summary?.filter((item) => item.value !== undefined) ?? [];
 		const foot = summary.length
-			? [summary.map((item) => `${ltr(item.value)}  ${rtl(doc, item.label)}`)]
+			? [summary.map((item) => `${ltr(item.value)}  ${rtl(item.label)}`)]
 			: undefined;
 
 		autoTable(doc, {
