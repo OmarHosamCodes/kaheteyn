@@ -45,6 +45,9 @@ type ChildRow = {
 	birthDate: string | null;
 	gender: string | null;
 	residence: string | null;
+	housingType: string | null;
+	incomeSources: string | null;
+	basicNeeds: string | null;
 	healthStatus: string | null;
 	schoolStage: string | null;
 	fatherName: string | null;
@@ -58,6 +61,7 @@ type ChildRow = {
 	guardianAccount: string | null;
 	sponsorshipStatus: string;
 	sponsorId: string | null;
+	sponsorCountry: string | null;
 	photo: string | null;
 	birthCertificate: string | null;
 	guardianIdPhoto: string | null;
@@ -74,6 +78,9 @@ function emptyChild(): ChildRow {
 		birthDate: null,
 		gender: null,
 		residence: null,
+		housingType: null,
+		incomeSources: null,
+		basicNeeds: null,
 		healthStatus: null,
 		schoolStage: null,
 		fatherName: null,
@@ -87,6 +94,7 @@ function emptyChild(): ChildRow {
 		guardianAccount: null,
 		sponsorshipStatus: "unsponsored",
 		sponsorId: null,
+		sponsorCountry: null,
 		photo: null,
 		birthCertificate: null,
 		guardianIdPhoto: null,
@@ -174,6 +182,11 @@ function ChildrenPage() {
 				{
 					label: "الواصي",
 					getValue: (c) => c.guardianName ?? "",
+					align: "right",
+				},
+				{
+					label: "الحساب البنكي",
+					getValue: (c) => c.guardianAccount ?? "",
 					align: "right",
 				},
 				{ label: "الهاتف", getValue: (c) => c.phone ?? "" },
@@ -480,6 +493,12 @@ function ChildDialog({
 								onChange={(e) => set("residence", e.target.value || null)}
 							/>
 						</Field>
+						<Field label="نوع السكن">
+							<Input
+								value={form.housingType ?? ""}
+								onChange={(e) => set("housingType", e.target.value || null)}
+							/>
+						</Field>
 						<Field label="الحالة الصحية">
 							<Input
 								value={form.healthStatus ?? ""}
@@ -552,6 +571,18 @@ function ChildDialog({
 								onChange={(e) => set("guardianAccount", e.target.value || null)}
 							/>
 						</Field>
+						<Field label="مصادر الدخل" className="md:col-span-3">
+							<Textarea
+								value={form.incomeSources ?? ""}
+								onChange={(e) => set("incomeSources", e.target.value || null)}
+							/>
+						</Field>
+						<Field label="الاحتياجات الأساسية" className="md:col-span-3">
+							<Textarea
+								value={form.basicNeeds ?? ""}
+								onChange={(e) => set("basicNeeds", e.target.value || null)}
+							/>
+						</Field>
 						<Field label="الحالة">
 							<Select
 								value={form.sponsorshipStatus}
@@ -578,6 +609,12 @@ function ChildDialog({
 									</option>
 								))}
 							</Select>
+						</Field>
+						<Field label="بلد الكفيل">
+							<Input
+								value={form.sponsorCountry ?? ""}
+								onChange={(e) => set("sponsorCountry", e.target.value || null)}
+							/>
 						</Field>
 						<Field label="الصورة الشخصية">
 							<FileUpload

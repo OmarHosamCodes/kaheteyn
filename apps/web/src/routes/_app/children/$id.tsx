@@ -34,6 +34,7 @@ import { PageHeader } from "@/components/page";
 import {
 	FINANCIAL_STATUS_LABEL,
 	formatDate,
+	formatSponsorshipDuration,
 	formatUSD,
 	PAYMENT_STATUS_LABEL,
 } from "@/lib/format";
@@ -85,12 +86,15 @@ function ChildDetail() {
 	const c = childQ.data;
 	const sponsor = (sponsorsQ.data ?? []).find((s) => s.id === c.sponsorId);
 	const payments = paymentsQ.data ?? [];
+	const sponsorshipDuration = formatSponsorshipDuration(
+		payments.map((payment) => payment.monthKey),
+	);
 	const totalCents = payments
 		.filter((p) => p.financialStatus === "confirmed")
 		.reduce((acc, p) => acc + p.amountUsd, 0);
 
 	async function handleExportPdf() {
-		await downloadChildCvPDF(c, sponsor, payments);
+		await downloadChildCvPDF(c, sponsor, payments, sponsorshipDuration);
 	}
 
 	return (
@@ -203,7 +207,10 @@ function ChildDetail() {
 							<Info label="تاريخ الميلاد" value={formatDate(c.birthDate)} />
 							<Info label="المرحلة الدراسية" value={c.schoolStage ?? "—"} />
 							<Info label="السكن" value={c.residence ?? "—"} />
+							<Info label="نوع السكن" value={c.housingType ?? "—"} />
 							<Info label="الحالة الصحية" value={c.healthStatus ?? "—"} />
+							<Info label="مصادر الدخل" value={c.incomeSources ?? "—"} />
+							<Info label="الاحتياجات الأساسية" value={c.basicNeeds ?? "—"} />
 							<Info label="عدد الإخوة" value={c.siblingsCount ?? "—"} />
 							<Info label="اسم الأب" value={c.fatherName ?? "—"} />
 							<Info
@@ -234,6 +241,8 @@ function ChildDetail() {
 									)
 								}
 							/>
+							<Info label="بلد الكفيل" value={c.sponsorCountry ?? "—"} />
+							<Info label="مدة الكفالة" value={sponsorshipDuration} />
 						</dl>
 						{c.notes ? (
 							<div className="mt-4 rounded-md border bg-muted/30 p-3 text-sm">

@@ -48,6 +48,21 @@ export function formatDateTime(d: Date | string | number | null | undefined) {
 	return `${formatDate(date)} ${time}`;
 }
 
+export function formatSponsorshipDuration(
+	monthKeys: Array<string | null | undefined>,
+) {
+	const count = new Set(
+		monthKeys.filter(
+			(monthKey): monthKey is string => /^\d{4}-\d{2}$/.test(monthKey ?? ""),
+		),
+	).size;
+	if (count === 0) return "—";
+	if (count === 1) return "شهر واحد";
+	if (count === 2) return "شهران";
+	if (count <= 10) return `${count} أشهر`;
+	return `${count} شهر`;
+}
+
 export const PAYMENT_METHOD_LABEL: Record<string, string> = {
 	bank_palestine: "بنك فلسطين",
 	palpay: "بال بي",

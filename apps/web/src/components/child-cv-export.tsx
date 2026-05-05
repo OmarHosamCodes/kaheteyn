@@ -15,6 +15,9 @@ type ExportChild = {
 	age?: number | null;
 	gender?: string | null;
 	residence?: string | null;
+	housingType?: string | null;
+	incomeSources?: string | null;
+	basicNeeds?: string | null;
 	healthStatus?: string | null;
 	schoolStage?: string | null;
 	fatherName?: string | null;
@@ -26,6 +29,7 @@ type ExportChild = {
 	guardianRelation?: string | null;
 	phone?: string | null;
 	guardianAccount?: string | null;
+	sponsorCountry?: string | null;
 	notes?: string | null;
 };
 
@@ -39,6 +43,7 @@ type ExportSponsor =
 type ExportPayment = {
 	amountUsd?: number | null;
 	dateSent?: Date | string | number | null;
+	monthKey?: string | null;
 };
 
 type Field = {
@@ -371,6 +376,7 @@ export async function downloadChildCvPDF(
 	child: ExportChild,
 	sponsor: ExportSponsor,
 	payments: ExportPayment[],
+	sponsorshipDuration: string,
 ) {
 	try {
 		await ensureFontsLoaded();
@@ -458,9 +464,9 @@ export async function downloadChildCvPDF(
 			doc,
 			"الوضع المعيشي",
 			[
-				{ label: "نوع السكن", value: EMPTY_VALUE },
-				{ label: "مصادر الدخل", value: EMPTY_VALUE },
-				{ label: "الاحتياجات الأساسية", value: EMPTY_VALUE, wide: true },
+				{ label: "نوع السكن", value: child.housingType },
+				{ label: "مصادر الدخل", value: child.incomeSources },
+				{ label: "الاحتياجات الأساسية", value: child.basicNeeds, wide: true },
 			],
 			61,
 			y,
@@ -472,9 +478,9 @@ export async function downloadChildCvPDF(
 			"تفاصيل الكفالة",
 			[
 				{ label: "اسم الكافل", value: sponsor?.name },
-				{ label: "بلد الكافل", value: EMPTY_VALUE },
+				{ label: "بلد الكافل", value: child.sponsorCountry },
 				{ label: "قيمة الكفالة الشهرية", value: formatAmount(monthlyAmount) },
-				{ label: "مدة الكفالة", value: sponsor ? "مفتوحة" : EMPTY_VALUE },
+				{ label: "مدة الكفالة", value: sponsorshipDuration },
 				{
 					label: "تاريخ بدء الكفالة",
 					value: sponsorshipStartDate

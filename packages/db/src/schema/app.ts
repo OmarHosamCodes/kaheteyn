@@ -12,6 +12,9 @@ export const child = pgTable(
 		birthDate: text("birth_date"), // ISO string
 		gender: text("gender"), // ذكر / أنثى
 		residence: text("residence"),
+		housingType: text("housing_type"),
+		incomeSources: text("income_sources"),
+		basicNeeds: text("basic_needs"),
 		healthStatus: text("health_status"),
 		schoolStage: text("school_stage"), // روضة | ابتدائي | إعدادي | ثانوي | جامعي | غير ملتحق
 		fatherName: text("father_name"),
@@ -27,6 +30,7 @@ export const child = pgTable(
 			.default("unsponsored")
 			.notNull(), // sponsored | unsponsored
 		sponsorId: text("sponsor_id"),
+		sponsorCountry: text("sponsor_country"),
 		photo: text("photo"), // data URL or path
 		birthCertificate: text("birth_certificate"),
 		guardianIdPhoto: text("guardian_id_photo"),

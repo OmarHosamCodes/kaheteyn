@@ -13,6 +13,9 @@ const childInput = z.object({
 	birthDate: z.string().nullable().optional(),
 	gender: z.string().nullable().optional(),
 	residence: z.string().nullable().optional(),
+	housingType: z.string().nullable().optional(),
+	incomeSources: z.string().nullable().optional(),
+	basicNeeds: z.string().nullable().optional(),
 	healthStatus: z.string().nullable().optional(),
 	schoolStage: z.string().nullable().optional(),
 	fatherName: z.string().nullable().optional(),
@@ -28,6 +31,7 @@ const childInput = z.object({
 		.enum(["sponsored", "unsponsored"])
 		.default("unsponsored"),
 	sponsorId: z.string().nullable().optional(),
+	sponsorCountry: z.string().nullable().optional(),
 	photo: z.string().nullable().optional(),
 	birthCertificate: z.string().nullable().optional(),
 	guardianIdPhoto: z.string().nullable().optional(),
