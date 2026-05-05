@@ -1,11 +1,11 @@
 {
-  "$schema": "https://schema.railpack.com",
-  "steps": {
-    "build": {
-      "commands": ["bun run --cwd apps/web build"]
-    }
-  },
-  "deploy": {
-    "startCommand": "bun run --cwd packages/db db:migrate && bun run apps/web/server.ts"
-  }
+	"$schema": "https://schema.railpack.com",
+	"steps": {
+		"build": {
+			"commands": ["bun run --cwd apps/web build"]
+		}
+	},
+	"deploy": {
+		"startCommand": "bun run --cwd packages/db db:migrate && bun run apps/web/server.ts"
+	}
 }

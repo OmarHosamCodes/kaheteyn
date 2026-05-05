@@ -7,28 +7,28 @@ import { username } from "better-auth/plugins/username";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 
 export function createAuth() {
-  const db = createDb();
+	const db = createDb();
 
-  return betterAuth({
-    database: drizzleAdapter(db, {
-      provider: "pg",
-      schema: schema,
-    }),
-    trustedOrigins: [env.CORS_ORIGIN],
-    emailAndPassword: {
-      enabled: true,
-      minPasswordLength: 6,
-      autoSignIn: true,
-    },
-    secret: env.BETTER_AUTH_SECRET,
-    baseURL: env.BETTER_AUTH_URL,
-    plugins: [
-      username({
-        minUsernameLength: 3,
-      }),
-      tanstackStartCookies(),
-    ],
-  });
+	return betterAuth({
+		database: drizzleAdapter(db, {
+			provider: "pg",
+			schema: schema,
+		}),
+		trustedOrigins: [env.CORS_ORIGIN],
+		emailAndPassword: {
+			enabled: true,
+			minPasswordLength: 6,
+			autoSignIn: true,
+		},
+		secret: env.BETTER_AUTH_SECRET,
+		baseURL: env.BETTER_AUTH_URL,
+		plugins: [
+			username({
+				minUsernameLength: 3,
+			}),
+			tanstackStartCookies(),
+		],
+	});
 }
 
 export const auth = createAuth();

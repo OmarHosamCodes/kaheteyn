@@ -1,28 +1,28 @@
 {
-  "name": "@kaheteyn/api",
-  "type": "module",
-  "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
-    }
-  },
-  "scripts": {},
-  "dependencies": {
-    "better-auth": "catalog:",
-    "@kaheteyn/auth": "workspace:*",
-    "@kaheteyn/db": "workspace:*",
-    "@kaheteyn/env": "workspace:*",
-    "@trpc/client": "catalog:",
-    "@trpc/server": "catalog:",
-    "dotenv": "catalog:",
-    "drizzle-orm": "^0.45.2",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@kaheteyn/config": "workspace:*",
-    "typescript": "catalog:"
-  }
+	"name": "@kaheteyn/api",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {},
+	"dependencies": {
+		"better-auth": "catalog:",
+		"@kaheteyn/auth": "workspace:*",
+		"@kaheteyn/db": "workspace:*",
+		"@kaheteyn/env": "workspace:*",
+		"@trpc/client": "catalog:",
+		"@trpc/server": "catalog:",
+		"dotenv": "catalog:",
+		"drizzle-orm": "^0.45.2",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@kaheteyn/config": "workspace:*",
+		"typescript": "catalog:"
+	}
 }

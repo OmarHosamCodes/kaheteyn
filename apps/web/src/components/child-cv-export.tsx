@@ -149,6 +149,7 @@ export function ChildCvExport({
 			</style>
 
 			<div className="mx-auto flex min-h-[273mm] max-w-[190mm] flex-col text-[15px] leading-8">
+				<div className="mb-4 h-1 w-full rounded-full bg-[#61b48c]" />
 				<header className="pb-5">
 					<h1 className="mb-6 text-center font-bold text-[26px]">{title}</h1>
 
