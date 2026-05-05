@@ -17,8 +17,8 @@ import { DownloadIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState, PageHeader } from "@/components/page";
-import { downloadCSV } from "@/lib/csv";
 import { formatDateTime } from "@/lib/format";
+import { downloadPDF, pdfDateSlug } from "@/lib/pdf-export";
 import { useTRPC } from "@/utils/trpc";
 
 export const Route = createFileRoute("/_app/audit")({
@@ -82,16 +82,34 @@ function AuditPage() {
 		);
 	}, [rows, filter.search]);
 
-	const exportCSV = () => {
-		const data = filtered.map((r) => ({
-			ID: r.id,
-			Timestamp: formatDateTime(r.timestamp),
-			Actor: r.actorName ?? r.actorId ?? "",
-			EntityType: ENTITY_LABEL[r.entityType] ?? r.entityType,
-			EntityID: r.entityId ?? "",
-			Action: ACTION_LABEL[r.action] ?? r.action,
-		}));
-		downloadCSV(`audit-${new Date().toISOString().slice(0, 10)}.csv`, data);
+	const exportPDF = () => {
+		downloadPDF({
+			filename: `audit-${pdfDateSlug()}.pdf`,
+			title: "سجل التدقيق",
+			subtitle: `عدد العمليات: ${filtered.length}`,
+			rows: filtered,
+			columns: [
+				{ label: "المعرّف", getValue: (r) => r.id, width: 28 },
+				{ label: "التاريخ", getValue: (r) => formatDateTime(r.timestamp) },
+				{
+					label: "المنفّذ",
+					getValue: (r) => r.actorName ?? r.actorId ?? "",
+					align: "right",
+				},
+				{
+					label: "النوع",
+					getValue: (r) => ENTITY_LABEL[r.entityType] ?? r.entityType,
+					align: "right",
+				},
+				{ label: "معرّف الكيان", getValue: (r) => r.entityId ?? "", width: 28 },
+				{
+					label: "الإجراء",
+					getValue: (r) => ACTION_LABEL[r.action] ?? r.action,
+					align: "right",
+				},
+			],
+			summary: [{ label: "عدد العمليات", value: filtered.length }],
+		});
 	};
 
 	return (
@@ -100,8 +118,8 @@ function AuditPage() {
 				title="سجل العمليات"
 				subtitle={`${filtered.length} عملية`}
 				actions={
-					<Button variant="outline" size="sm" onClick={exportCSV}>
-						<DownloadIcon className="ms-1 size-4" /> تصدير CSV
+					<Button variant="outline" size="sm" onClick={exportPDF}>
+						<DownloadIcon className="ms-1 size-4" /> تصدير PDF
 					</Button>
 				}
 			/>

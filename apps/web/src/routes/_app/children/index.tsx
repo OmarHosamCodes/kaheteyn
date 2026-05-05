@@ -26,12 +26,12 @@ import { toast } from "sonner";
 import { useConfirm } from "@/components/confirm";
 import { FileUpload } from "@/components/file-upload";
 import { EmptyState, Field, PageHeader } from "@/components/page";
-import { downloadCSV } from "@/lib/csv";
 import {
 	PAYMENT_METHOD_LABEL,
 	SCHOOL_STAGES,
 	SPONSORSHIP_STATUS_LABEL,
 } from "@/lib/format";
+import { downloadPDF } from "@/lib/pdf-export";
 import { useTRPC } from "@/utils/trpc";
 
 export const Route = createFileRoute("/_app/children/")({
@@ -150,25 +150,47 @@ function ChildrenPage() {
 		}),
 	);
 
-	function exportCsv() {
+	function exportPdf() {
 		const sponsorMap = new Map(
 			(sponsors.data ?? []).map((s) => [s.id, s.name]),
 		);
-		downloadCSV(
-			"children.csv",
-			(list.data ?? []).map((c) => ({
-				id: c.id,
-				fullName: c.fullName,
-				age: c.age ?? "",
-				gender: c.gender ?? "",
-				residence: c.residence ?? "",
-				schoolStage: c.schoolStage ?? "",
-				guardianName: c.guardianName ?? "",
-				phone: c.phone ?? "",
-				sponsorshipStatus: SPONSORSHIP_STATUS_LABEL[c.sponsorshipStatus] ?? "",
-				sponsorName: c.sponsorId ? (sponsorMap.get(c.sponsorId) ?? "") : "",
-			})),
-		);
+		const rows = list.data ?? [];
+		downloadPDF({
+			filename: "children.pdf",
+			title: "سجل الأطفال",
+			subtitle: `إجمالي السجلات: ${rows.length}`,
+			rows,
+			columns: [
+				{ label: "المعرّف", getValue: (c) => c.id, width: 24 },
+				{ label: "الاسم", getValue: (c) => c.fullName, align: "right" },
+				{ label: "العمر", getValue: (c) => c.age ?? "", align: "center" },
+				{ label: "الجنس", getValue: (c) => c.gender ?? "", align: "right" },
+				{ label: "السكن", getValue: (c) => c.residence ?? "", align: "right" },
+				{
+					label: "المرحلة الدراسية",
+					getValue: (c) => c.schoolStage ?? "",
+					align: "right",
+				},
+				{
+					label: "الواصي",
+					getValue: (c) => c.guardianName ?? "",
+					align: "right",
+				},
+				{ label: "الهاتف", getValue: (c) => c.phone ?? "" },
+				{
+					label: "حالة الكفالة",
+					getValue: (c) => SPONSORSHIP_STATUS_LABEL[c.sponsorshipStatus] ?? "",
+					align: "right",
+				},
+				{
+					label: "الكفيل",
+					getValue: (c) =>
+						c.sponsorId ? (sponsorMap.get(c.sponsorId) ?? "") : "",
+					align: "right",
+				},
+			],
+			summary: [{ label: "عدد الأطفال", value: rows.length }],
+		});
 	}
 
 	return (
@@ -178,8 +200,8 @@ function ChildrenPage() {
 				subtitle="إدارة سجلات الأطفال المكفولين وغير المكفولين"
 				actions={
 					<>
-						<Button variant="outline" onClick={exportCsv} size="sm">
-							<DownloadIcon className="ms-1 size-4" /> تصدير CSV
+						<Button variant="outline" onClick={exportPdf} size="sm">
+							<DownloadIcon className="ms-1 size-4" /> تصدير PDF
 						</Button>
 						<Button onClick={() => setEditing(emptyChild())} size="sm">
 							<PlusIcon className="ms-1 size-4" /> طفل جديد

@@ -33,8 +33,8 @@ import { toast } from "sonner";
 
 import { useConfirm } from "@/components/confirm";
 import { EmptyState, Field, PageHeader } from "@/components/page";
-import { downloadCSV } from "@/lib/csv";
 import { formatUSD, PAYMENT_METHOD_LABEL } from "@/lib/format";
+import { downloadPDF, pdfDateSlug } from "@/lib/pdf-export";
 import { useTRPC } from "@/utils/trpc";
 
 export const Route = createFileRoute("/_app/sponsors")({
@@ -177,19 +177,49 @@ function SponsorsPage() {
 		if (ok) removeMut.mutate({ id: s.id, force: true });
 	};
 
-	const exportCSV = () => {
-		const rows = filtered.map((s) => ({
-			ID: s.id,
-			Name: s.name,
-			Phone: s.phone ?? "",
-			PaymentMethod: s.paymentMethod
-				? (PAYMENT_METHOD_LABEL[s.paymentMethod] ?? s.paymentMethod)
-				: "",
-			Children: s.childrenCount,
-			TotalUSD: (s.totalDisbursedCents / 100).toFixed(2),
-			Notes: s.notes ?? "",
-		}));
-		downloadCSV(`sponsors-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+	const exportPDF = () => {
+		downloadPDF({
+			filename: `sponsors-${pdfDateSlug()}.pdf`,
+			title: "سجل الكفلاء",
+			subtitle: search ? `نتائج البحث: ${search}` : "كل الكفلاء",
+			rows: filtered,
+			columns: [
+				{ label: "المعرّف", getValue: (s) => s.id, width: 24 },
+				{ label: "الاسم", getValue: (s) => s.name, align: "right" },
+				{ label: "الهاتف", getValue: (s) => s.phone ?? "" },
+				{
+					label: "طريقة الدفع",
+					getValue: (s) =>
+						s.paymentMethod
+							? (PAYMENT_METHOD_LABEL[s.paymentMethod] ?? s.paymentMethod)
+							: "",
+					align: "right",
+				},
+				{
+					label: "عدد الأطفال",
+					getValue: (s) => s.childrenCount,
+					align: "center",
+				},
+				{
+					label: "إجمالي مدفوع",
+					getValue: (s) => formatUSD(s.totalDisbursedCents),
+				},
+				{ label: "ملاحظات", getValue: (s) => s.notes ?? "", align: "right" },
+			],
+			summary: [
+				{ label: "عدد الكفلاء", value: filtered.length },
+				{
+					label: "عدد الأطفال",
+					value: filtered.reduce((a, s) => a + s.childrenCount, 0),
+				},
+				{
+					label: "إجمالي مدفوع",
+					value: formatUSD(
+						filtered.reduce((a, s) => a + s.totalDisbursedCents, 0),
+					),
+				},
+			],
+		});
 	};
 
 	return (
@@ -199,8 +229,8 @@ function SponsorsPage() {
 				subtitle={`${totals.sponsors} كفيل · ${totals.children} طفل · ${formatUSD(totals.disbursed)} إجمالي`}
 				actions={
 					<>
-						<Button variant="outline" size="sm" onClick={exportCSV}>
-							<DownloadIcon className="ms-1 size-4" /> تصدير CSV
+						<Button variant="outline" size="sm" onClick={exportPDF}>
+							<DownloadIcon className="ms-1 size-4" /> تصدير PDF
 						</Button>
 						<Button size="sm" onClick={openCreate}>
 							<PlusIcon className="ms-1 size-4" /> إضافة كفيل

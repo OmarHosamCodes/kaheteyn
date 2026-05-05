@@ -21,7 +21,6 @@ import { DownloadIcon, PrinterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PageHeader } from "@/components/page";
-import { downloadCSV } from "@/lib/csv";
 import {
 	currentMonthKey,
 	FINANCIAL_STATUS_LABEL,
@@ -30,6 +29,7 @@ import {
 	monthLabelFromKey,
 	PAYMENT_STATUS_LABEL,
 } from "@/lib/format";
+import { downloadPDF } from "@/lib/pdf-export";
 import { useTRPC } from "@/utils/trpc";
 
 export const Route = createFileRoute("/_app/reports")({
@@ -61,29 +61,57 @@ function ReportsPage() {
 
 	const monthOptions = useMemo(() => {
 		const set = new Set<string>();
-		(paymentsQ.data ?? []).forEach((p) => set.add(p.monthKey));
+		(paymentsQ.data ?? []).forEach((p) => {
+			set.add(p.monthKey);
+		});
 		set.add(currentMonthKey());
 		return Array.from(set).sort().reverse();
 	}, [paymentsQ.data]);
 
-	const exportCSV = () => {
-		const rows = items.map((p) => ({
-			ID: p.id,
-			Child: p.childName,
-			Residence: p.childResidence,
-			Guardian: p.guardianName,
-			Phone: p.childPhone,
-			BankAccount: p.guardianAccount,
-			Sponsor: p.sponsorName,
-			Month: p.monthLabel,
-			AmountUSD: (p.amountUsd / 100).toFixed(2),
-			DateSent: formatDate(p.dateSent),
-			PaymentStatus: PAYMENT_STATUS_LABEL[p.paymentStatus] ?? p.paymentStatus,
-			FinancialStatus:
-				FINANCIAL_STATUS_LABEL[p.financialStatus] ?? p.financialStatus,
-			HasReceipt: p.hasReceipt ? "نعم" : "لا",
-		}));
-		downloadCSV(`report-${monthKey}.csv`, rows);
+	const exportPDF = () => {
+		downloadPDF({
+			filename: `report-${monthKey}.pdf`,
+			title: "التقرير الشهري",
+			subtitle: `${monthLabelFromKey(monthKey)}${sponsorId ? ` | الكفيل: ${sponsors.find((s) => s.id === sponsorId)?.name ?? sponsorId}` : ""}`,
+			rows: items,
+			columns: [
+				{ label: "المعرّف", getValue: (p) => p.id, width: 24 },
+				{ label: "الطفل", getValue: (p) => p.childName, align: "right" },
+				{ label: "السكن", getValue: (p) => p.childResidence, align: "right" },
+				{ label: "الواصي", getValue: (p) => p.guardianName, align: "right" },
+				{ label: "الهاتف", getValue: (p) => p.childPhone },
+				{ label: "الحساب البنكي", getValue: (p) => p.guardianAccount },
+				{ label: "الكفيل", getValue: (p) => p.sponsorName, align: "right" },
+				{ label: "الشهر", getValue: (p) => p.monthLabel, align: "right" },
+				{ label: "المبلغ", getValue: (p) => formatUSD(p.amountUsd) },
+				{ label: "تاريخ الإرسال", getValue: (p) => formatDate(p.dateSent) },
+				{
+					label: "حالة الدفع",
+					getValue: (p) =>
+						PAYMENT_STATUS_LABEL[p.paymentStatus] ?? p.paymentStatus,
+					align: "right",
+				},
+				{
+					label: "الحالة المالية",
+					getValue: (p) =>
+						FINANCIAL_STATUS_LABEL[p.financialStatus] ?? p.financialStatus,
+					align: "right",
+				},
+				{
+					label: "الإقرار",
+					getValue: (p) => (p.hasReceipt ? "موجود" : "مفقود"),
+					align: "center",
+				},
+			],
+			summary: totals
+				? [
+						{ label: "عدد الدفعات", value: totals.count },
+						{ label: "الإجمالي", value: formatUSD(totals.totalCents) },
+						{ label: "مؤكد", value: formatUSD(totals.confirmedCents) },
+						{ label: "إقرارات مفقودة", value: totals.missingReceipts },
+					]
+				: undefined,
+		});
 	};
 
 	return (
@@ -96,8 +124,8 @@ function ReportsPage() {
 						<Button variant="outline" size="sm" onClick={() => window.print()}>
 							<PrinterIcon className="ms-1 size-4" /> طباعة / PDF
 						</Button>
-						<Button variant="outline" size="sm" onClick={exportCSV}>
-							<DownloadIcon className="ms-1 size-4" /> تصدير CSV
+						<Button variant="outline" size="sm" onClick={exportPDF}>
+							<DownloadIcon className="ms-1 size-4" /> تصدير PDF
 						</Button>
 					</>
 				}

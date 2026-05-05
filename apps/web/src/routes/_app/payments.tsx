@@ -36,7 +36,6 @@ import { toast } from "sonner";
 import { useConfirm } from "@/components/confirm";
 import { FileUpload } from "@/components/file-upload";
 import { EmptyState, Field, PageHeader } from "@/components/page";
-import { downloadCSV } from "@/lib/csv";
 import {
 	currentMonthKey,
 	FINANCIAL_STATUS_LABEL,
@@ -45,6 +44,7 @@ import {
 	monthLabelFromKey,
 	PAYMENT_STATUS_LABEL,
 } from "@/lib/format";
+import { downloadPDF, pdfDateSlug } from "@/lib/pdf-export";
 import { useTRPC } from "@/utils/trpc";
 
 export const Route = createFileRoute("/_app/payments")({
@@ -120,7 +120,9 @@ function PaymentsPage() {
 
 	const monthOptions = useMemo(() => {
 		const set = new Set<string>();
-		payments.forEach((p) => set.add(p.monthKey));
+		payments.forEach((p) => {
+			set.add(p.monthKey);
+		});
 		set.add(currentMonthKey());
 		return Array.from(set).sort().reverse();
 	}, [payments]);
@@ -249,23 +251,52 @@ function PaymentsPage() {
 		if (ok) removeMut.mutate({ id: p.id });
 	};
 
-	const exportCSV = () => {
-		const rows = payments.map((p) => ({
-			ID: p.id,
-			Child: p.childName,
-			ChildId: p.childId,
-			Sponsor: p.sponsorName,
-			SponsorId: p.sponsorId,
-			Month: p.monthLabel,
-			AmountUSD: (p.amountUsd / 100).toFixed(2),
-			DateSent: formatDate(p.dateSent),
-			PaymentStatus: PAYMENT_STATUS_LABEL[p.paymentStatus] ?? p.paymentStatus,
-			FinancialStatus:
-				FINANCIAL_STATUS_LABEL[p.financialStatus] ?? p.financialStatus,
-			AcknowledgmentReceipt: p.acknowledgmentReceipt ? "نعم" : "لا",
-			TransferReceipt: p.transferReceipt ? "نعم" : "لا",
-		}));
-		downloadCSV(`payments-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+	const exportPDF = () => {
+		downloadPDF({
+			filename: `payments-${pdfDateSlug()}.pdf`,
+			title: "سجل المدفوعات",
+			subtitle: filter.monthKey
+				? `الشهر: ${monthLabelFromKey(filter.monthKey)}`
+				: "كل الأشهر",
+			rows: payments,
+			columns: [
+				{ label: "المعرّف", getValue: (p) => p.id, width: 24 },
+				{ label: "الطفل", getValue: (p) => p.childName, align: "right" },
+				{ label: "معرّف الطفل", getValue: (p) => p.childId, width: 24 },
+				{ label: "الكفيل", getValue: (p) => p.sponsorName, align: "right" },
+				{ label: "معرّف الكفيل", getValue: (p) => p.sponsorId, width: 24 },
+				{ label: "الشهر", getValue: (p) => p.monthLabel, align: "right" },
+				{ label: "المبلغ", getValue: (p) => formatUSD(p.amountUsd) },
+				{ label: "تاريخ الإرسال", getValue: (p) => formatDate(p.dateSent) },
+				{
+					label: "حالة الدفع",
+					getValue: (p) =>
+						PAYMENT_STATUS_LABEL[p.paymentStatus] ?? p.paymentStatus,
+					align: "right",
+				},
+				{
+					label: "الحالة المالية",
+					getValue: (p) =>
+						FINANCIAL_STATUS_LABEL[p.financialStatus] ?? p.financialStatus,
+					align: "right",
+				},
+				{
+					label: "إقرار",
+					getValue: (p) => (p.acknowledgmentReceipt ? "نعم" : "لا"),
+					align: "center",
+				},
+				{
+					label: "تحويل",
+					getValue: (p) => (p.transferReceipt ? "نعم" : "لا"),
+					align: "center",
+				},
+			],
+			summary: [
+				{ label: "عدد الدفعات", value: payments.length },
+				{ label: "إجمالي مؤكد", value: formatUSD(totals.confirmed) },
+				{ label: "إجمالي مرسل", value: formatUSD(totals.sent) },
+			],
+		});
 	};
 
 	const childOptions = useMemo(
@@ -281,8 +312,8 @@ function PaymentsPage() {
 				subtitle={`${totals.count} دفعة · مؤكَّد ${formatUSD(totals.confirmed)} · مرسلة ${formatUSD(totals.sent)}`}
 				actions={
 					<>
-						<Button variant="outline" size="sm" onClick={exportCSV}>
-							<DownloadIcon className="ms-1 size-4" /> تصدير CSV
+						<Button variant="outline" size="sm" onClick={exportPDF}>
+							<DownloadIcon className="ms-1 size-4" /> تصدير PDF
 						</Button>
 						<Button size="sm" onClick={openCreate}>
 							<PlusIcon className="ms-1 size-4" /> دفعة جديدة
